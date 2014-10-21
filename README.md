@@ -1,12 +1,10 @@
-HMTL
-====
+HMTL Fire Control
+=================
 
-Code for the electronics of HMTL
+This code drives the HMTL Fire Control box
 
-To Use
-======
-
-In order to compile these sketches the contents of the Libraries must be linked to from within your Arduino/libaries directory.
-
-They also depend on several libraries that can be found here:
+Dependencies
+============
+This code relies on a number of other libraries:
   * https://github.com/aphelps/ArduinoLibs
+  * https://github.com/HMTL/HMTL

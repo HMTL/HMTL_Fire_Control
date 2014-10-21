@@ -1,1 +1,0 @@
-In order to use these libraries they must be linked (individually) into the libraries directory within your Arduino folder.
