@@ -13,7 +13,7 @@
 #include <RS485_non_blocking.h>
 #include <SoftwareSerial.h>
 #include "SPI.h"
-#include "Adafruit_WS2801.h"
+#include "FastLED.h"
 #include "Wire.h"
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"

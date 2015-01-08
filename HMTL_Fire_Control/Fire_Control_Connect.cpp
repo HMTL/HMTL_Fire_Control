@@ -12,7 +12,7 @@
 #include <SoftwareSerial.h>
 #include "SPI.h"
 #include "Wire.h"
-#include "Adafruit_WS2801.h"
+#include "FastLED.h"
 
 
 #define DEBUG_LEVEL DEBUG_MID
@@ -36,7 +36,7 @@ byte *send_buffer; // Pointer to use for start of send data
 
 void initialize_connect() {
   /* Setup the RS485 connection */
-  if (!rs485.initialized) {
+  if (!rs485.initialized()) {
     DEBUG_ERR("RS485 was not initialized, check config");
     DEBUG_ERR_STATE(DEBUG_ERR_UNINIT);
   }
