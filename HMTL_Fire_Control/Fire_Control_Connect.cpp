@@ -44,8 +44,8 @@ void initialize_connect() {
   rs485.setup();
   send_buffer = rs485.initBuffer(databuffer);
 
-  DEBUG_VALUE(DEBUG_LOW, "Initialized RS485. address=", my_address);
-  DEBUG_VALUELN(DEBUG_LOW, " bufsize=", SEND_BUFFER_SIZE);
+  DEBUG2_VALUE("Initialized RS485. address=", my_address);
+  DEBUG2_VALUELN(" bufsize=", SEND_BUFFER_SIZE);
 }
 
 void sendHMTLValue(uint16_t address, uint8_t output, int value) {

@@ -39,9 +39,9 @@ void sensor_switches(void) {
       data_changed = true;
       switch_states[i] = value;
       if (value) {
-	DEBUG_VALUELN(DEBUG_TRACE, "Switch is on: ", i);
+	DEBUG5_VALUELN("Switch is on: ", i);
       } else {
-	DEBUG_VALUELN(DEBUG_TRACE, "Switch is off: ", i);
+	DEBUG5_VALUELN("Switch is off: ", i);
       }
     } else {
       switch_changed[i] = false;
@@ -55,11 +55,11 @@ void sensor_cap(void)
 {
   if (touch_sensor.readTouchInputs()) {
     DEBUG_COMMAND(DEBUG_TRACE,
-      DEBUG_PRINT(DEBUG_TRACE, "Cap:");
+      DEBUG5_PRINT("Cap:");
       for (byte i = 0; i < MPR121::MAX_SENSORS; i++) {
-        DEBUG_VALUE(DEBUG_TRACE, " ", touch_sensor.touched(i));
+        DEBUG5_VALUE(" ", touch_sensor.touched(i));
       }
-      DEBUG_VALUELN(DEBUG_TRACE, " ms:", millis());
+      DEBUG5_VALUELN(" ms:", millis());
     );
     data_changed = true;
   }

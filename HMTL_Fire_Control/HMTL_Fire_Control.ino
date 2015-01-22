@@ -52,8 +52,8 @@ byte my_address = 0;
 void setup()
 {
   Serial.begin(BAUD);
-  DEBUG_PRINTLN(DEBUG_LOW, "*** HMTL Fire Control Initializing ***");
-  DEBUG_VALUELN(DEBUG_LOW, "* Baud is ", BAUD);
+  DEBUG2_PRINTLN("*** HMTL Fire Control Initializing ***");
+  DEBUG2_VALUELN("* Baud is ", BAUD);
 
   /* Initialize random see by reading from an unconnected analog pin */
   randomSeed(analogRead(0) + analogRead(2) + micros());
@@ -73,8 +73,8 @@ void setup()
   /* Setup the sensors */
   initialize_switches();
 
-  DEBUG_PRINT(DEBUG_LOW, "* Setup complete for Fire Control Module");
-  DEBUG_VALUELN(DEBUG_LOW, " Build=", HMTL_FIRE_CONTROL_BUILD);
+  DEBUG2_PRINT("* Setup complete for Fire Control Module");
+  DEBUG2_VALUELN(" Build=", HMTL_FIRE_CONTROL_BUILD);
   DEBUG_MEMORY(DEBUG_HIGH);
 
   pixels.setAllRGB(255, 0, 255);

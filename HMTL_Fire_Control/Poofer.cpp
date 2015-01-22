@@ -37,7 +37,7 @@ Poofer::Poofer(byte _id, uint16_t _address,
 }
 
 void Poofer::enableIgniter() {
-  DEBUG_VALUELN(DEBUG_MID, "Igniter enabled: ", id);
+  DEBUG3_VALUELN("Igniter enabled: ", id);
   igniter_enabled = true;
   changed = true;
   poof_ready = false;
@@ -45,7 +45,7 @@ void Poofer::enableIgniter() {
 }
 
 void Poofer::disableIgniter() {
-  DEBUG_VALUELN(DEBUG_MID, "Igniter disabled: ", id);
+  DEBUG3_VALUELN("Igniter disabled: ", id);
   igniter_enabled = false;
   igniter_on = false;
   changed = true;
@@ -54,13 +54,13 @@ void Poofer::disableIgniter() {
 
 
 void Poofer::enablePoof() {
-  DEBUG_VALUELN(DEBUG_MID, "Poof enabled: ", id);
+  DEBUG3_VALUELN("Poof enabled: ", id);
   poof_enabled = true;
   changed = true;
 }
 
 void Poofer::disablePoof() {
-  DEBUG_VALUELN(DEBUG_MID, "Poof disabled: ", id);
+  DEBUG3_VALUELN("Poof disabled: ", id);
   poof_enabled = false;
   poof_on = false;
   changed = true;
@@ -68,8 +68,8 @@ void Poofer::disablePoof() {
 }
 
 void Poofer::ignite(uint32_t period_ms) {
-  DEBUG_VALUE(DEBUG_MID, "Igniter ", id);
-  DEBUG_VALUELN(DEBUG_MID, " on for:", period_ms);
+  DEBUG3_VALUE("Igniter ", id);
+  DEBUG3_VALUELN(" on for:", period_ms);
   if (!igniter_on) changed = true;
   igniter_on = true;
   igniter_off_ms = millis() + period_ms;
@@ -78,8 +78,8 @@ void Poofer::ignite(uint32_t period_ms) {
 
 void Poofer::poof(uint32_t period_ms) {
   if (poof_ready) {
-    DEBUG_VALUE(DEBUG_MID, "Poof ", id);
-    DEBUG_VALUELN(DEBUG_MID, " on for:", period_ms);
+    DEBUG3_VALUE("Poof ", id);
+    DEBUG3_VALUELN(" on for:", period_ms);
     if (!poof_on) changed = true;
     poof_on = true;
     poof_off_ms = millis() + period_ms;
@@ -99,14 +99,14 @@ void Poofer::update() {
   uint32_t now = millis();
 
   if (igniter_on && (now > igniter_off_ms)) {
-    DEBUG_VALUELN(DEBUG_MID, "Igniter off: ", id);
+    DEBUG3_VALUELN("Igniter off: ", id);
     igniter_on = false;
     changed = true;
     poof_ready = true;
   }
 
   if (poof_on && (now > poof_off_ms)) {
-    DEBUG_VALUELN(DEBUG_MID, "Poof off: ", id);
+    DEBUG3_VALUELN("Poof off: ", id);
     poof_on = false;
     changed = true;
   }
