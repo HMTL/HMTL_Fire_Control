@@ -30,13 +30,14 @@
 #include "HMTLMessaging.h"
 
 #include "PixelUtil.h"
+#include "Socket.h"
 #include "RS485Utils.h"
 #include "MPR121.h"
 
 #include "HMTL_Fire_Control.h"
 
 /* Auto update build number */
-#define HMTL_FIRE_CONTROL_BUILD 4 // %META INCR
+#define HMTL_FIRE_CONTROL_BUILD 5 // %META INCR
 
 //LiquidTWI lcd(0);
 LiquidCrystal lcd(0);
