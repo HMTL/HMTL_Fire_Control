@@ -39,9 +39,9 @@ void sensor_switches(void) {
       data_changed = true;
       switch_states[i] = value;
       if (value) {
-	DEBUG5_VALUELN("Switch is on: ", i);
+        DEBUG5_VALUELN("Switch is on: ", i);
       } else {
-	DEBUG5_VALUELN("Switch is off: ", i);
+        DEBUG5_VALUELN("Switch is off: ", i);
       }
     } else {
       switch_changed[i] = false;
@@ -55,12 +55,12 @@ void sensor_cap(void)
 {
   if (touch_sensor.readTouchInputs()) {
     DEBUG_COMMAND(DEBUG_TRACE,
-      DEBUG5_PRINT("Cap:");
-      for (byte i = 0; i < MPR121::MAX_SENSORS; i++) {
-        DEBUG5_VALUE(" ", touch_sensor.touched(i));
-      }
-      DEBUG5_VALUELN(" ms:", millis());
-    );
+                  DEBUG5_PRINT("Cap:");
+                  for (byte i = 0; i < MPR121::MAX_SENSORS; i++) {
+                    DEBUG5_VALUE(" ", touch_sensor.touched(i));
+                  }
+                  DEBUG5_VALUELN(" ms:", millis());
+                  );
     data_changed = true;
   }
 }
@@ -68,11 +68,11 @@ void sensor_cap(void)
 /******* Handle Sensors *******************************************************/
 
 Poofer poof1(1, POOFER1_ADDRESS,
-	     POOFER1_IGNITER_ENABLED, POOFER1_IGNITER,
-	     POOFER1_POOF_ENABLED, POOFER1_POOF);
+             POOFER1_IGNITER_ENABLED, POOFER1_IGNITER,
+             POOFER1_POOF_ENABLED, POOFER1_POOF);
 Poofer poof2(2, POOFER2_ADDRESS,
-	     POOFER2_IGNITER_ENABLED, POOFER2_IGNITER,
-	     POOFER2_POOF_ENABLED, POOFER2_POOF);
+             POOFER2_IGNITER_ENABLED, POOFER2_IGNITER,
+             POOFER2_POOF_ENABLED, POOFER2_POOF);
 
 byte display_mode = 0;
 #define NUM_DISPLAY_MODES 2
@@ -159,80 +159,80 @@ void update_lcd() {
   static uint32_t last_update = 0;
 
   switch (display_mode) {
-  case 1: {
-    if (data_changed) {
-      lcd.setCursor(0, 0);
-      lcd.print("C:");
-      for (byte i = 0; i < MPR121::MAX_SENSORS; i++) {
-	lcd.print(touch_sensor.touched(i));
-      }
+    case 1: {
+      if (data_changed) {
+        lcd.setCursor(0, 0);
+        lcd.print("C:");
+        for (byte i = 0; i < MPR121::MAX_SENSORS; i++) {
+          lcd.print(touch_sensor.touched(i));
+        }
 
-      lcd.setCursor(0, 1);
-      lcd.print("S:");
-      for (byte i = 0; i < NUM_SWITCHES; i++) {
-	lcd.print(switch_states[i]);
-      }
+        lcd.setCursor(0, 1);
+        lcd.print("S:");
+        for (byte i = 0; i < NUM_SWITCHES; i++) {
+          lcd.print(switch_states[i]);
+        }
     
-      data_changed = false;
+        data_changed = false;
+      }
+      break;
     }
-    break;
-  }
-  case 0: {
-    boolean updated = poof1.changed || poof2.changed 
-      || ((now - last_update) > 1000);
+    case 0: {
+      boolean updated = poof1.changed || poof2.changed 
+        || ((now - last_update) > 1000);
 
-    if (updated) {
-      last_update = now;
+      if (updated) {
+        last_update = now;
 
-      lcd.setCursor(0, 0);
-      lcd.print("FIRE 1:");
-      if (poof1.igniter_on) {
-	lcd.print(" I");
-	uint32_t remaining = poof1.ignite_remaining() / 1000;
-	lcd.print(remaining);
-      } else if (poof1.igniter_enabled) {
-	lcd.print(" E");
-      } else {
-	lcd.print(" -");
+        lcd.setCursor(0, 0);
+        lcd.print("FIRE 1:");
+        if (poof1.igniter_on) {
+          lcd.print(" I");
+          uint32_t remaining = poof1.ignite_remaining() / 1000;
+          lcd.print(remaining);
+        } else if (poof1.igniter_enabled) {
+          lcd.print(" E");
+        } else {
+          lcd.print(" -");
+        }
+
+        if (poof1.poof_on) {
+          lcd.print(" P");
+        } else if (poof1.poof_enabled) {
+          lcd.print(" E");
+        } else {
+          lcd.print(" -");
+        }
+        lcd.print("     ");
+        poof1.changed = false;
       }
 
-      if (poof1.poof_on) {
-	lcd.print(" P");
-      } else if (poof1.poof_enabled) {
-	lcd.print(" E");
-      } else {
-	lcd.print(" -");
+      if (updated) {
+        lcd.setCursor(0, 1);
+        lcd.print("FIRE 2:");
+        if (poof2.igniter_on) {
+          lcd.print(" I");\
+          uint32_t remaining = poof2.ignite_remaining() / 1000;
+          lcd.print(remaining);
+        } else if (poof2.igniter_enabled) {
+          lcd.print(" E");
+        } else {
+          lcd.print(" -");
+        }
+
+        if (poof2.poof_on) {
+          lcd.print(" P");
+        } else if (poof2.poof_enabled) {
+          lcd.print(" E");
+        } else {
+          lcd.print(" -");
+        }
+        lcd.print("     ");
+        poof2.changed = false;
       }
-      lcd.print("     ");
-      poof1.changed = false;
+
+      break;
     }
-
-    if (updated) {
-      lcd.setCursor(0, 1);
-      lcd.print("FIRE 2:");
-      if (poof2.igniter_on) {
-	lcd.print(" I");\
-	uint32_t remaining = poof2.ignite_remaining() / 1000;
-	lcd.print(remaining);
-      } else if (poof2.igniter_enabled) {
-	lcd.print(" E");
-      } else {
-	lcd.print(" -");
-      }
-
-      if (poof2.poof_on) {
-	lcd.print(" P");
-      } else if (poof2.poof_enabled) {
-	lcd.print(" E");
-      } else {
-	lcd.print(" -");
-      }
-      lcd.print("     ");
-      poof2.changed = false;
-    }
-
-    break;
-  }
   }
 }
 

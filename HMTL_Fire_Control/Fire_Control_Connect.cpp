@@ -25,6 +25,7 @@
 
 #include "PixelUtil.h"
 #include "RS485Utils.h"
+#include "XBeeSocket.h"
 #include "MPR121.h"
 
 #include "HMTL_Fire_Control.h"

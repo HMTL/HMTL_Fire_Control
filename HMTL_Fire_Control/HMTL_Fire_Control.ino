@@ -37,9 +37,9 @@
 #include "HMTL_Fire_Control.h"
 
 /* Auto update build number */
-#define HMTL_FIRE_CONTROL_BUILD 5 // %META INCR
+#define HMTL_FIRE_CONTROL_BUILD 7 // %META INCR
 
-//LiquidTWI lcd(0);
+//LiquidTWI lcd(0); ??? Why isn't this used?
 LiquidCrystal lcd(0);
 
 RS485Socket rs485;
@@ -105,9 +105,9 @@ void readHMTLConfiguration() {
   int offset;
 
   uint32_t outputs_found = hmtl_setup(&config, readoutputs, outputs,
-				     NULL, HMTL_MAX_OUTPUTS,
-				     &rs485, &pixels, &touch_sensor,
-				     NULL, NULL, &offset);
+                                      NULL, HMTL_MAX_OUTPUTS,
+                                      &rs485, NULL, &pixels, &touch_sensor,
+                                      NULL, NULL, &offset);
 
   if (!(outputs_found & (1 << HMTL_OUTPUT_RS485))) {
     DEBUG_ERR("No RS485 config found");
