@@ -30,7 +30,6 @@
 
 #include "HMTL_Fire_Control.h"
 
-#define SEND_BUFFER_SIZE RS485_BUFFER_TOTAL(sizeof (msg_hdr_t) + sizeof (msg_max_t) + 16) // XXX: Could this be smaller?
 
 byte databuffer[SEND_BUFFER_SIZE];
 byte *send_buffer; // Pointer to use for start of send data

@@ -13,7 +13,6 @@
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"
 
-
 #define BAUD 57600
 
 // LCD display
@@ -46,28 +45,7 @@ void sensor_cap();
 
 void handle_sensors();
 
-/***** Connectivity ***********************************************************/
-
-extern RS485Socket rs485;
-extern byte my_address;
-
-#define ADDRESS_SOUND_UNIT  0x01
-
-#define POOFER1_ADDRESS  0x40
-#define POOFER1_IGNITER  0x0
-#define POOFER1_POOF     0x1
-
-#define POOFER2_ADDRESS  0x40
-#define POOFER2_IGNITER  0x2
-#define POOFER2_POOF     0x3
-
-// Switches
-#define POOFER1_IGNITER_ENABLED 0
-#define POOFER1_POOF_ENABLED    2
-#define POOFER2_IGNITER_ENABLED 1
-#define POOFER2_POOF_ENABLED    3
-
-// Sensors
+// Capacitive sensors
 #define POOFER1_QUICK_POOF_SENSOR   3
 #define POOFER1_LONG_POOF_SENSOR    2
 #define POOFER2_QUICK_POOF_SENSOR   0
@@ -82,6 +60,34 @@ extern byte my_address;
 #define SENSOR_LCD_UP               8
 #define SENSOR_LCD_DOWN            10
 #define SENSOR_BOTTOM              11
+
+// Rocker switches
+#define POOFER1_IGNITER_SWITCH 0
+#define POOFER1_POOF_SWITCH    2
+#define POOFER2_IGNITER_SWITCH 1
+#define POOFER2_POOF_SWITCH    3
+
+
+/***** Connectivity ***********************************************************/
+
+extern RS485Socket rs485;
+extern byte my_address;
+extern byte *send_buffer;
+
+#define SEND_DATA_SIZE (sizeof (msg_hdr_t) + sizeof (msg_max_t) + 16)
+#define SEND_BUFFER_SIZE RS485_BUFFER_TOTAL(SEND_DATA_SIZE) // XXX: Could this be smaller?
+
+// Poofer definitions
+#define POOFER1_ADDRESS  0x40
+#define POOFER1_IGNITER  0x0
+#define POOFER1_POOF     0x1
+
+#define POOFER2_ADDRESS  0x40
+#define POOFER2_IGNITER  0x2
+#define POOFER2_POOF     0x3
+
+
+
 
 void initialize_connect();
 

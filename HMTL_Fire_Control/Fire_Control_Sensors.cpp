@@ -12,8 +12,11 @@
 #include <Wire.h>
 #include "MPR121.h"
 
+#include "HMTLTypes.h"
+#include "HMTLMessaging.h"
+#include "HMTLPoofer.h"
+
 #include "HMTL_Fire_Control.h"
-#include "Poofer.h"
 
 boolean data_changed = true;
 
@@ -68,11 +71,11 @@ void sensor_cap(void)
 /******* Handle Sensors *******************************************************/
 
 Poofer poof1(1, POOFER1_ADDRESS,
-             POOFER1_IGNITER_ENABLED, POOFER1_IGNITER,
-             POOFER1_POOF_ENABLED, POOFER1_POOF);
+             POOFER1_IGNITER, HMTL_NO_OUTPUT, POOFER1_POOF,
+             &rs485, send_buffer, SEND_DATA_SIZE);
 Poofer poof2(2, POOFER2_ADDRESS,
-             POOFER2_IGNITER_ENABLED, POOFER2_IGNITER,
-             POOFER2_POOF_ENABLED, POOFER2_POOF);
+             POOFER2_IGNITER, HMTL_NO_OUTPUT, POOFER2_POOF,
+             &rs485, send_buffer, SEND_DATA_SIZE);
 
 byte display_mode = 0;
 #define NUM_DISPLAY_MODES 2
@@ -81,16 +84,16 @@ void handle_sensors(void) {
   static unsigned long last_send = millis();
 
   /* Igniter switches */
-  if (switch_changed[poof1.igniter_switch]) {
-    if (switch_states[poof1.igniter_switch]) {
+  if (switch_changed[POOFER1_IGNITER_SWITCH]) {
+    if (switch_states[POOFER1_IGNITER_SWITCH]) {
       poof1.enableIgniter();
     } else {
       poof1.disableIgniter();
     }
   }
 
-  if (switch_changed[poof1.poof_switch]) {
-    if (switch_states[poof1.poof_switch]) {
+  if (switch_changed[POOFER1_POOF_SWITCH]) {
+    if (switch_states[POOFER1_POOF_SWITCH]) {
       poof1.enablePoof();
     } else {
       poof1.disablePoof();
@@ -98,16 +101,16 @@ void handle_sensors(void) {
   }
 
   /* Poof switches */
-  if (switch_changed[poof2.igniter_switch]) {
-    if (switch_states[poof2.igniter_switch]) {
+  if (switch_changed[POOFER2_IGNITER_SWITCH]) {
+    if (switch_states[POOFER2_IGNITER_SWITCH]) {
       poof2.enableIgniter();
     } else {
       poof2.disableIgniter();
     }
   }
 
-  if (switch_changed[poof2.poof_switch]) {
-    if (switch_states[poof2.poof_switch]) {
+  if (switch_changed[POOFER2_POOF_SWITCH]) {
+    if (switch_states[POOFER2_POOF_SWITCH]) {
       poof2.enablePoof();
     } else {
       poof2.disablePoof();
@@ -115,24 +118,24 @@ void handle_sensors(void) {
   }
 
   /* Poofer controls */
-  if (poof1.igniter_enabled && poof1.poof_enabled && 
+  if (poof1.igniterEnabled() && poof1.poofEnabled() &&
       touch_sensor.changed(POOFER1_QUICK_POOF_SENSOR) &&
       touch_sensor.touched(POOFER1_QUICK_POOF_SENSOR)) {
     poof1.poof(50);
   }
 
-  if (poof1.igniter_enabled && poof1.poof_enabled && 
+  if (poof1.igniterEnabled() && poof1.poofEnabled() &&
       touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
     poof1.poof(250);
   }
 
-  if (poof2.igniter_enabled && poof2.poof_enabled && 
+  if (poof2.igniterEnabled() && poof2.poofEnabled() &&
       touch_sensor.changed(POOFER2_QUICK_POOF_SENSOR) &&
       touch_sensor.touched(POOFER2_QUICK_POOF_SENSOR)) {
     poof2.poof(50);
   }
 
-  if (poof2.igniter_enabled && poof2.poof_enabled && 
+  if (poof2.igniterEnabled() && poof2.poofEnabled() &&
       touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
     poof2.poof(250);
   }
@@ -178,7 +181,9 @@ void update_lcd() {
       break;
     }
     case 0: {
-      boolean updated = poof1.changed || poof2.changed 
+      boolean changed1 = poof1.checkChanged();
+      boolean changed2 = poof2.checkChanged();
+      boolean updated = changed1 || changed2
         || ((now - last_update) > 1000);
 
       if (updated) {
@@ -186,58 +191,59 @@ void update_lcd() {
 
         lcd.setCursor(0, 0);
         lcd.print("FIRE 1:");
-        if (poof1.igniter_on) {
+        if (poof1.igniterOn()) {
           lcd.print(" I");
           uint32_t remaining = poof1.ignite_remaining() / 1000;
           lcd.print(remaining);
-        } else if (poof1.igniter_enabled) {
+        } else if (poof1.igniterEnabled()) {
           lcd.print(" E");
         } else {
           lcd.print(" -");
         }
 
-        if (poof1.poof_on) {
+        if (poof1.poofOn()) {
           lcd.print(" P");
-        } else if (poof1.poof_enabled && poof1.poof_ready) {
+        } else if (poof1.poofEnabled() && poof1.poofReady()) {
           lcd.print(" R");
-        } else if (poof1.poof_enabled) {
+        } else if (poof1.poofEnabled()) {
           lcd.print(" E");
         } else {
           lcd.print(" -");
         }
         lcd.print("     ");
-        poof1.changed = false;
 
         lcd.setCursor(0, 1);
         lcd.print("FIRE 2:");
-        if (poof2.igniter_on) {
+        if (poof2.igniterOn()) {
           lcd.print(" I");\
           uint32_t remaining = poof2.ignite_remaining() / 1000;
           lcd.print(remaining);
-        } else if (poof2.igniter_enabled) {
+        } else if (poof2.igniterEnabled()) {
           lcd.print(" E");
         } else {
           lcd.print(" -");
         }
 
-        if (poof2.poof_on) {
+        if (poof2.poofOn()) {
           lcd.print(" P");
-        } else if (poof2.poof_enabled && poof2.poof_ready) {
+        } else if (poof2.poofEnabled() && poof2.poofReady()) {
           lcd.print(" R");
-        } else if (poof2.poof_enabled) {
+        } else if (poof2.poofEnabled()) {
           lcd.print(" E");
         } else {
           lcd.print(" -");
         }
         lcd.print("     ");
-        poof2.changed = false;
 
+        /*
+         * Update the bottom LEDs based on current state
+         */
         for (byte i = 8; i < 14; i++) {
-          if (poof1.igniter_on) {
+          if (poof1.igniterOn()) {
             pixels.setPixelRGB(i % 12, 128, 0, 0);
-          } else if (poof1.poof_enabled && poof1.poof_ready) {
+          } else if (poof1.poofEnabled() && poof1.poofReady()) {
             pixels.setPixelRGB(i % 12, 0, 255, 0);
-          } else if (poof1.igniter_enabled) {
+          } else if (poof1.igniterEnabled()) {
             pixels.setPixelRGB(i % 12, 128, 128, 0);
           } else {
             pixels.setPixelRGB(i % 12, 255, 0, 255);
@@ -245,11 +251,11 @@ void update_lcd() {
         }
 
         for (byte i = 2; i < 8; i++) {
-          if (poof2.igniter_on) {
+          if (poof2.igniterOn()) {
             pixels.setPixelRGB(i % 12, 128, 0, 0);
-          } else if (poof2.poof_enabled && poof2.poof_ready) {
+          } else if (poof2.poofEnabled() && poof2.poofReady()) {
             pixels.setPixelRGB(i % 12, 0, 255, 0);
-          } else if (poof2.igniter_enabled) {
+          } else if (poof2.igniterEnabled()) {
             pixels.setPixelRGB(i % 12, 128, 128, 0);
           } else {
             pixels.setPixelRGB(i % 12, 255, 0, 255);
