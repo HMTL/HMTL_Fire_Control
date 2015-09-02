@@ -78,11 +78,15 @@ extern byte *send_buffer;
 #define SEND_BUFFER_SIZE RS485_BUFFER_TOTAL(SEND_DATA_SIZE) // XXX: Could this be smaller?
 
 // Poofer definitions
-#define POOFER1_ADDRESS  0x40
+#ifndef POOFER1_ADDRESS
+  #define POOFER1_ADDRESS  0x41
+#endif
 #define POOFER1_IGNITER  0x0
 #define POOFER1_POOF     0x1
 
-#define POOFER2_ADDRESS  0x40
+#ifndef POOFER2_ADDRESS
+  #define POOFER2_ADDRESS  0x41
+#endif
 #define POOFER2_IGNITER  0x2
 #define POOFER2_POOF     0x3
 
