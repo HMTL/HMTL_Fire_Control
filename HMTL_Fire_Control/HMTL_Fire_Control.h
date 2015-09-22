@@ -14,7 +14,7 @@
 #include "LiquidCrystal.h"
 
 
-#define BAUD 9600
+#define BAUD 57600
 
 // LCD display
 extern LiquidCrystal lcd;
@@ -53,11 +53,11 @@ extern byte my_address;
 
 #define ADDRESS_SOUND_UNIT  0x01
 
-#define POOFER1_ADDRESS  0x41
+#define POOFER1_ADDRESS  0x40
 #define POOFER1_IGNITER  0x0
 #define POOFER1_POOF     0x1
 
-#define POOFER2_ADDRESS  0x41
+#define POOFER2_ADDRESS  0x40
 #define POOFER2_IGNITER  0x2
 #define POOFER2_POOF     0x3
 

@@ -78,8 +78,10 @@ void Poofer::ignite(uint32_t period_ms) {
 
 void Poofer::poof(uint32_t period_ms) {
   if (poof_ready) {
-    DEBUG3_VALUE("Poof ", id);
-    DEBUG3_VALUELN(" on for:", period_ms);
+    if (!poof_on) {
+      DEBUG3_VALUE("Poof ", id);
+      DEBUG3_VALUELN(" on for:", period_ms);
+    }
     if (!poof_on) changed = true;
     poof_on = true;
     poof_off_ms = millis() + period_ms;

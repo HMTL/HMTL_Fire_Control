@@ -198,6 +198,8 @@ void update_lcd() {
 
         if (poof1.poof_on) {
           lcd.print(" P");
+        } else if (poof1.poof_enabled && poof1.poof_ready) {
+          lcd.print(" R");
         } else if (poof1.poof_enabled) {
           lcd.print(" E");
         } else {
@@ -205,9 +207,7 @@ void update_lcd() {
         }
         lcd.print("     ");
         poof1.changed = false;
-      }
 
-      if (updated) {
         lcd.setCursor(0, 1);
         lcd.print("FIRE 2:");
         if (poof2.igniter_on) {
@@ -222,6 +222,8 @@ void update_lcd() {
 
         if (poof2.poof_on) {
           lcd.print(" P");
+        } else if (poof2.poof_enabled && poof2.poof_ready) {
+          lcd.print(" R");
         } else if (poof2.poof_enabled) {
           lcd.print(" E");
         } else {
@@ -229,6 +231,32 @@ void update_lcd() {
         }
         lcd.print("     ");
         poof2.changed = false;
+
+        for (byte i = 8; i < 14; i++) {
+          if (poof1.igniter_on) {
+            pixels.setPixelRGB(i % 12, 128, 0, 0);
+          } else if (poof1.poof_enabled && poof1.poof_ready) {
+            pixels.setPixelRGB(i % 12, 0, 255, 0);
+          } else if (poof1.igniter_enabled) {
+            pixels.setPixelRGB(i % 12, 128, 128, 0);
+          } else {
+            pixels.setPixelRGB(i % 12, 255, 0, 255);
+          }
+        }
+
+        for (byte i = 2; i < 8; i++) {
+          if (poof2.igniter_on) {
+            pixels.setPixelRGB(i % 12, 128, 0, 0);
+          } else if (poof2.poof_enabled && poof2.poof_ready) {
+            pixels.setPixelRGB(i % 12, 0, 255, 0);
+          } else if (poof2.igniter_enabled) {
+            pixels.setPixelRGB(i % 12, 128, 128, 0);
+          } else {
+            pixels.setPixelRGB(i % 12, 255, 0, 255);
+          }
+        }
+
+        pixels.update();
       }
 
       break;
