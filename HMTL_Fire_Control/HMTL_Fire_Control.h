@@ -23,6 +23,8 @@ void initialize_display();
 // Pixels used for under lighting
 extern PixelUtil pixels;
 
+void readHMTLConfiguration();
+
 /***** Poofer bullshit ********************************************************/
 void update_poofers();
 
@@ -71,7 +73,7 @@ void handle_sensors();
 /***** Connectivity ***********************************************************/
 
 extern RS485Socket rs485;
-extern byte my_address;
+extern uint16_t my_address;
 extern byte *send_buffer;
 
 #define SEND_DATA_SIZE (sizeof (msg_hdr_t) + sizeof (msg_max_t) + 16)

@@ -21,7 +21,9 @@
 #include "GeneralUtils.h"
 #include "EEPromUtils.h"
 #include "HMTLTypes.h"
+#include <HMTLProtocol.h>
 #include "HMTLMessaging.h"
+#include "HMTLPrograms.h"
 
 #include "PixelUtil.h"
 #include "RS485Utils.h"

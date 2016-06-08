@@ -45,7 +45,7 @@ LiquidCrystal lcd(0);
 RS485Socket rs485;
 PixelUtil pixels;
 MPR121 touch_sensor; // MPR121 must be initialized after Wire.begin();
-byte my_address = 0;
+uint16_t my_address = 0;
 
 /******************************************************************************
  * Initialization
