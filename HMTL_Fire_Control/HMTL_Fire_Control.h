@@ -47,7 +47,28 @@ void sensor_cap();
 
 void handle_sensors();
 
-// Capacitive sensors
+/***** Connectivity ***********************************************************/
+
+extern RS485Socket rs485;
+extern byte my_address;
+
+#define ADDRESS_SOUND_UNIT  0x01
+
+#define POOFER1_ADDRESS  SOCKET_ADDR_ANY
+#define POOFER1_IGNITER  0x0
+#define POOFER1_POOF     0x1
+
+#define POOFER2_ADDRESS  SOCKET_ADDR_ANY
+#define POOFER2_IGNITER  0x2
+#define POOFER2_POOF     0x3
+
+// Switches
+#define POOFER1_IGNITER_ENABLED 0
+#define POOFER1_POOF_ENABLED    2
+#define POOFER2_IGNITER_ENABLED 1
+#define POOFER2_POOF_ENABLED    3
+
+// Sensors
 #define POOFER1_QUICK_POOF_SENSOR   3
 #define POOFER1_LONG_POOF_SENSOR    2
 #define POOFER2_QUICK_POOF_SENSOR   0
