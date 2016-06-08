@@ -33,7 +33,8 @@
 #include "HMTL_Fire_Control.h"
 
 
-byte databuffer[SEND_BUFFER_SIZE];
+byte rs485_data_buffer[RS485_BUFFER_TOTAL(SEND_BUFFER_SIZE)];
+
 byte *send_buffer; // Pointer to use for start of send data
 
 void initialize_connect() {
@@ -44,7 +45,7 @@ void initialize_connect() {
   }
 
   rs485.setup();
-  send_buffer = rs485.initBuffer(databuffer);
+  send_buffer = rs485.initBuffer(rs485_data_buffer, SEND_BUFFER_SIZE);
 
   DEBUG2_VALUE("Initialized RS485. address=", my_address);
   DEBUG2_VALUELN(" bufsize=", SEND_BUFFER_SIZE);
