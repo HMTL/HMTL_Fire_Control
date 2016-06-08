@@ -27,6 +27,7 @@
 #include "EEPromUtils.h"
 
 #include "HMTLTypes.h"
+#include <HMTLProtocol.h>
 #include "HMTLMessaging.h"
 
 #include "PixelUtil.h"
