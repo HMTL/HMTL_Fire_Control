@@ -69,6 +69,7 @@ void handle_sensors();
 #define POOFER1_IGNITER_SWITCH 0
 #define POOFER1_PILOT_SWITCH   1
 #define POOFER1_ENABLE_SWITCH  2
+#define LIGHTS_ON_SWITCH  3
 
 /***** Connectivity ***********************************************************/
 
@@ -88,7 +89,14 @@ extern byte *send_buffer;
 #define POOFER1_POOF1    0x2
 #define POOFER1_POOF2    0x3
 
+#ifndef LIGHTS_ADDRESS
+  #define LIGHTS_ADDRESS  0x40
+#endif
+#define LIGHTS1 0x0
+#define LIGHTS2 0x1
 
+extern uint16_t poofer_address;
+extern uint16_t lights_address;
 
 
 

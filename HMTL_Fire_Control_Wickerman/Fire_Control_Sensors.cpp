@@ -20,6 +20,9 @@
 
 boolean data_changed = true;
 
+uint16_t poofer_address = POOFER1_ADDRESS;
+uint16_t lights_address = LIGHTS_ADDRESS;
+
 /******* Switches *************************************************************/
 
 #define NUM_SWITCHES 4
@@ -94,14 +97,28 @@ void sendCancel(uint16_t address, uint8_t output) {
 void handle_sensors(void) {
   static unsigned long last_send = millis();
 
+  /* Goblin Lights */
+  if (switch_changed[LIGHTS_ON_SWITCH]) {
+    if (switch_states[LIGHTS_ON_SWITCH]) {
+      DEBUG1_PRINTLN("LIGHTS ON");
+      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS1, 128);
+      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS2, 128);
+    } else {
+      DEBUG1_PRINTLN("LIGHTS OFF");
+      sendOff(LIGHTS_ADDRESS, LIGHTS1);
+      sendOff(LIGHTS_ADDRESS, LIGHTS2);
+    }
+  }
+
+
   /* Igniter switches */
   if (switch_changed[POOFER1_IGNITER_SWITCH]) {
     if (switch_states[POOFER1_IGNITER_SWITCH]) {
       DEBUG1_PRINTLN("IGNITE ON");
-      sendOn(SOCKET_ADDR_ANY, POOFER1_IGNITER);
+      sendOn(POOFER1_ADDRESS, POOFER1_IGNITER);
     } else {
       DEBUG1_PRINTLN("IGNITE OFF");
-      sendOff(SOCKET_ADDR_ANY, POOFER1_IGNITER);
+      sendOff(POOFER1_ADDRESS, POOFER1_IGNITER);
     }
   }
 
@@ -109,10 +126,10 @@ void handle_sensors(void) {
   if (switch_changed[POOFER1_PILOT_SWITCH]) {
     if (switch_states[POOFER1_PILOT_SWITCH]) {
       DEBUG1_PRINTLN("PILOT ON");
-      sendOn(SOCKET_ADDR_ANY, POOFER1_PILOT);
+      sendOn(POOFER1_ADDRESS, POOFER1_PILOT);
     } else {
       DEBUG1_PRINTLN("PILOT OFF");
-      sendOff(SOCKET_ADDR_ANY, POOFER1_PILOT);
+      sendOff(POOFER1_ADDRESS, POOFER1_PILOT);
     }
   }
 
@@ -122,11 +139,11 @@ void handle_sensors(void) {
       DEBUG1_PRINTLN("POOFERS ENABLED");
     } else {
       DEBUG1_PRINTLN("POOFERS DISABLED");
-      sendCancel(SOCKET_ADDR_ANY, POOFER1_POOF1);
-      sendCancel(SOCKET_ADDR_ANY, POOFER1_POOF2);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
 
-      sendOff(SOCKET_ADDR_ANY, POOFER1_POOF1);
-      sendOff(SOCKET_ADDR_ANY, POOFER1_POOF2);
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
     }
   }
 
@@ -135,26 +152,26 @@ void handle_sensors(void) {
     /* Poofer controls */
     if (touch_sensor.changed(POOFER1_QUICK_POOF_SENSOR) &&
         touch_sensor.touched(POOFER1_QUICK_POOF_SENSOR)) {
-      sendBurst(SOCKET_ADDR_ANY, POOFER1_POOF1, 50);
+      sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 50);
     }
 
     if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
-      sendBurst(SOCKET_ADDR_ANY, POOFER1_POOF1, 250);
+      sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
     } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
-      sendOff(SOCKET_ADDR_ANY, POOFER1_POOF1);
-      sendCancel(SOCKET_ADDR_ANY, POOFER1_POOF1);
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
     }
 
     if (touch_sensor.changed(POOFER2_QUICK_POOF_SENSOR) &&
         touch_sensor.touched(POOFER2_QUICK_POOF_SENSOR)) {
-      sendBurst(SOCKET_ADDR_ANY, POOFER1_POOF2, 50);
+      sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 50);
     }
 
     if (touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
-      sendBurst(SOCKET_ADDR_ANY, POOFER1_POOF2, 250);
+      sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 250);
     } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
-      sendOff(SOCKET_ADDR_ANY, POOFER1_POOF2);
-      sendCancel(SOCKET_ADDR_ANY, POOFER1_POOF2);
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
     }
   }
 

@@ -140,6 +140,9 @@ void setup() {
   DEBUG2_VALUELN(" Build=", HMTL_FIRE_CONTROL_BUILD);
   DEBUG_MEMORY(DEBUG_HIGH);
 
+  DEBUG2_VALUE("POOF_ADDRESS=", poofer_address);
+  DEBUG2_VALUELN("LIGHTS_ADDRESS=", lights_address);
+
   pixels.setAllRGB(255, 0, 255);
   pixels.update();
 
