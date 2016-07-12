@@ -21,6 +21,8 @@
 #include <MessageHandler.h>
 
 #include <PixelUtil.h>
+#include <HMTLTypes.h>
+#include <GeneralUtils.h>
 
 #include "HMTL_Fire_Control.h"
 #include "modes.h"
@@ -29,8 +31,8 @@
 hmtl_program_t program_functions[] = {
         // Programs from HMTLPrograms
         { HMTL_PROGRAM_NONE, NULL, NULL},
-        //{ HMTL_PROGRAM_BLINK, program_blink, program_blink_init },
-        //{ HMTL_PROGRAM_TIMED_CHANGE, program_timed_change, program_timed_change_init },
+        { HMTL_PROGRAM_BLINK, program_blink, program_blink_init },
+        { HMTL_PROGRAM_TIMED_CHANGE, program_timed_change, program_timed_change_init },
         //{ HMTL_PROGRAM_FADE, program_fade, program_fade_init }
         { HMTL_PROGRAM_SPARKLE, program_sparkle, program_sparkle_init },
 
@@ -42,19 +44,43 @@ program_tracker_t *active_programs[HMTL_MAX_OUTPUTS];
 ProgramManager manager;
 MessageHandler handler;
 
+/* Return the first output of the indicated type */
+uint8_t find_output_type(uint8_t type) {
+  for (byte i = 0; i < config.num_outputs; i++) {
+    if (outputs[i]->type == type) {
+      return i;
+    }
+  }
+  return HMTL_NO_OUTPUT;
+}
+
+/* Construct a sparkle command and run it locally */
+void setSparkle() {
+  program_sparkle_fmt(rs485.send_buffer, rs485.send_data_size,
+                      config.address, find_output_type(HMTL_OUTPUT_PIXELS),
+                      100, 0);
+  handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
+}
+
+void setBlink() {
+  hmtl_program_blink_fmt(rs485.send_buffer, rs485.send_data_size,
+                         config.address, find_output_type(HMTL_OUTPUT_PIXELS),
+                         500, pixel_color(255,0,0),
+                         250, 0);
+  handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
+}
+
+void setCancel() {
+  hmtl_program_cancel_fmt(rs485.send_buffer, rs485.send_data_size,
+                          config.address, find_output_type(HMTL_OUTPUT_PIXELS));
+  handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
+}
+
 /*
  * Execute initial commands
  */
 void startup_commands() {
-//  const byte data[] = { // This turns on PENDANT_TEST_PIXELS for all outputs
-//          0xfc,0x00,0x02,0x17,0x01,0x00,0xff,0xff,
-//          0x03,0xfe,0x20,0x32,0x00,0x00,0x00,0x00,
-//          0x00,0x00,0x00,0x00,0x00,0x00,0x00};
-//  memcpy(rs485.send_buffer, data, sizeof (data));
-//
-//  handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485,
-//                      NULL, &config);
-
+  setSparkle();
 }
 
 void init_modes(Socket **sockets, byte num_sockets) {
@@ -96,5 +122,6 @@ boolean messages_and_modes(void) {
       hmtl_update_output(outputs[i], objects[i]);
     }
   }
-}
 
+  return update;
+}

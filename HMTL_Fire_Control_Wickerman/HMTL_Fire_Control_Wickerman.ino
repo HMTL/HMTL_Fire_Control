@@ -144,9 +144,6 @@ void setup() {
   DEBUG2_VALUE("POOF_ADDRESS=", poofer_address);
   DEBUG2_VALUELN("LIGHTS_ADDRESS=", lights_address);
 
-  pixels.setAllRGB(255, 0, 255);
-  pixels.update();
-
   // Send the ready signal to the serial port
   Serial.println(F(HMTL_READY));
 }

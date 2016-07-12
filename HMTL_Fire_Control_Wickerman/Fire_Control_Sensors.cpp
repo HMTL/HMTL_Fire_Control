@@ -17,6 +17,7 @@
 #include "HMTLPoofer.h"
 
 #include "HMTL_Fire_Control.h"
+#include "modes.h"
 
 boolean data_changed = true;
 
@@ -142,6 +143,7 @@ void handle_sensors(void) {
   if (switch_changed[POOFER1_ENABLE_SWITCH]) {
     if (switch_states[POOFER1_ENABLE_SWITCH]) {
       DEBUG1_PRINTLN("POOFERS ENABLED");
+      setBlink();
     } else {
       DEBUG1_PRINTLN("POOFERS DISABLED");
       sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
@@ -149,6 +151,7 @@ void handle_sensors(void) {
 
       sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
       sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+      setCancel();
     }
   }
 

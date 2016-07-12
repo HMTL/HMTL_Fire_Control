@@ -17,9 +17,12 @@ void init_modes(Socket **sockets, byte num_sockets);
 /* Check for messages and handle program modes */
 boolean messages_and_modes(void);
 
+void setSparkle();
+void setBlink();
+void setCancel();
+
 /*******************************************************************************
  * Control box specific modes
  */
-
 
 #endif //MODES_H
