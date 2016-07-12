@@ -32,16 +32,18 @@
 
 #include "Socket.h"
 #include "RS485Utils.h"
-#include "XBee.h"
-#include "XBeeSocket.h"
+//#include "XBee.h"
+//#include "XBeeSocket.h"
 
 #include "HMTLProtocol.h"
 #include "HMTLMessaging.h"
 #include "HMTLPrograms.h"
 #include "TimeSync.h"
+#include "ProgramManager.h"
+#include "MessageHandler.h"
+
 
 #include "HMTL_Fire_Control.h"
-
 #include "modes.h"
 
 
@@ -84,9 +86,8 @@ void setup() {
   initialize_display();
 
   lcd.clear();
-  lcd.setCursor(0, 0); lcd.print("Hello Black");
-  lcd.setCursor(0,1);  lcd.print("Rock City!");
-
+  lcd.setCursor(0, 0); lcd.print(F("Hello Mysteria"));
+  lcd.setCursor(0,1);  lcd.print(F("Rock City!"));
 
 
   int configOffset = -1;
@@ -95,7 +96,7 @@ void setup() {
                                      &rs485,
                                      NULL,          // XBee
                                      &pixels,
-                                     &touch_sensor,          // MPR121
+                                     &touch_sensor, // MPR121
                                      NULL,          // RGB
                                      &value_output, // Value
                                      &configOffset);
@@ -150,13 +151,7 @@ void setup() {
   Serial.println(F(HMTL_READY));
 }
 
-#define PERIOD 100
-unsigned long last_change = 0;
-int cycle = 0;
 void loop() {
-
-  // TODO: Add sensors and such here
-
   /* Check the sensor values */
   sensor_cap();
 
@@ -175,7 +170,5 @@ void loop() {
    * Check for messages and handle output states
    */
   boolean updated = messages_and_modes();
-
-
 }
 

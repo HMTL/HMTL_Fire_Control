@@ -3,11 +3,11 @@
  * License: Create Commons Attribution-Non-Commercial
  * Copyright: 2016
  *
- * Message handling and pendant modes
+ * Message handling and output modes
  ******************************************************************************/
 
-#ifndef WIRELESSPENDANT_MODES_H
-#define WIRELESSPENDANT_MODES_H
+#ifndef MODES_H
+#define MODES_H
 
 #include <HMTLPrograms.h>
 
@@ -18,18 +18,8 @@ void init_modes(Socket **sockets, byte num_sockets);
 boolean messages_and_modes(void);
 
 /*******************************************************************************
- * Pendant-specific program modes
+ * Control box specific modes
  */
 
-/* Wireless pendant programs */
-#define PENDANT_TEST_PIXELS 0x20
 
-/* Mode program prototypes */
-boolean program_test_pixels_init(msg_program_t *msg,
-                                 program_tracker_t *tracker,
-                                 output_hdr_t *output);
-
-boolean program_test_pixels(output_hdr_t *output, void *object,
-                            program_tracker_t *tracker);
-
-#endif //WIRELESSPENDANT_MODES_H
+#endif //MODES_H

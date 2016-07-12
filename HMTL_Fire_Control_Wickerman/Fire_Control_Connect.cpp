@@ -53,3 +53,12 @@ void sendHMTLCancel(uint16_t address, uint8_t output) {
   hmtl_send_cancel(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
                    address, output);
 }
+
+void sendHMTLBlink(uint16_t address, uint8_t output,
+                   uint16_t onperiod, uint32_t oncolor,
+                   uint16_t offperiod, uint32_t offcolor) {
+  hmtl_send_blink(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
+                  address, output,
+                  onperiod, oncolor,
+                  offperiod, offcolor);
+}

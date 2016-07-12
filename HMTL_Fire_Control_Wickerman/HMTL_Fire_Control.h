@@ -108,4 +108,7 @@ void sendHMTLTimedChange(uint16_t address, uint8_t output,
 			 uint32_t start_color,
 			 uint32_t stop_color);
 void sendHMTLCancel(uint16_t address, uint8_t output);
+void sendHMTLBlink(uint16_t address, uint8_t output,
+                   uint16_t onperiod, uint32_t oncolor,
+                   uint16_t offperiod, uint32_t offcolor);
 #endif
