@@ -107,12 +107,14 @@ void handle_sensors(void) {
   if (switch_changed[LIGHTS_ON_SWITCH]) {
     if (switch_states[LIGHTS_ON_SWITCH]) {
       DEBUG1_PRINTLN("LIGHTS ON");
-      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS1, 128);
-      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS2, 128);
+      sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, 128);
+//      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS1, 128);
+//      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS2, 128);
     } else {
       DEBUG1_PRINTLN("LIGHTS OFF");
-      sendOff(LIGHTS_ADDRESS, LIGHTS1);
-      sendOff(LIGHTS_ADDRESS, LIGHTS2);
+      sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+//      sendOff(LIGHTS_ADDRESS, LIGHTS1);
+//      sendOff(LIGHTS_ADDRESS, LIGHTS2);
     }
   }
 
@@ -121,7 +123,8 @@ void handle_sensors(void) {
   if (switch_changed[POOFER1_IGNITER_SWITCH]) {
     if (switch_states[POOFER1_IGNITER_SWITCH]) {
       DEBUG1_PRINTLN("IGNITE ON");
-      sendOn(POOFER1_ADDRESS, POOFER1_IGNITER);
+      sendBurst(POOFER1_ADDRESS, POOFER1_IGNITER, 30*1000);
+      //sendOn(POOFER1_ADDRESS, POOFER1_IGNITER);
     } else {
       DEBUG1_PRINTLN("IGNITE OFF");
       sendOff(POOFER1_ADDRESS, POOFER1_IGNITER);
