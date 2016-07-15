@@ -18,6 +18,7 @@
 
 #include "HMTL_Fire_Control.h"
 #include "modes.h"
+#include "Fire_Control_Sensors.h"
 
 boolean data_changed = true;
 
@@ -76,17 +77,7 @@ void sensor_cap(void)
 
 /******* Handle Sensors *******************************************************/
 
-#define DISPLAY_CAP_SENSORS   0
-#define DISPLAY_ADJUST_LEFT1  1
-#define DISPLAY_ADJUST_LEFT2  2
-#define DISPLAY_ADJUST_RIGHT1 3
-#define DISPLAY_ADJUST_RIGHT2 4
-#define DISPLAY_ADJUST_BRIGHTNESS 5
-
-#define DISPLAY_MAX (5 + 1)
-
-byte display_mode = 0;
-#define NUM_DISPLAY_MODES DISPLAY_MAX
+uint8_t display_mode = 0;
 
 uint16_t pulse_bpm_1 = 120;
 uint16_t pulse_length_1 = 25;
@@ -99,11 +90,8 @@ uint16_t pulse_delay_2;
 uint8_t brightness = 96;
 
 boolean lights_on = false;
-void sendBrightness() {
-  if (lights_on) {
-    sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, brightness);
-  }
-}
+uint8_t led_mode = LED_MODE_ON;
+uint8_t led_mode_value = 50;
 
 void calculate_pulse() {
   pulse_delay_1 = ((uint16_t)1000 * (uint16_t)60 / pulse_bpm_1) - pulse_length_1;
@@ -132,6 +120,24 @@ void sendPulse(uint16_t address, uint8_t output,
   sendHMTLBlink(address, output, onperiod, 0xFFFFFFFF, offperiod, 0);
 }
 
+void sendLEDMode() {
+  if (lights_on) {
+    switch (led_mode) {
+      case LED_MODE_ON: {
+        sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, brightness);
+        break;
+      }
+      case LED_MODE_BLINK: {
+        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,led_mode_value, led_mode_value);
+        break;
+      }
+    }
+  } else {
+    sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+    sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+  }
+}
+
 void handle_sensors(void) {
   static unsigned long last_send = millis();
 
@@ -140,11 +146,11 @@ void handle_sensors(void) {
     if (switch_states[LIGHTS_ON_SWITCH]) {
       DEBUG1_PRINTLN("LIGHTS ON");
       lights_on = true;
-      sendBrightness();
+      sendLEDMode();
     } else {
       DEBUG1_PRINTLN("LIGHTS OFF");
       lights_on = false;
-      sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+      sendLEDMode();
     }
   }
 
@@ -334,7 +340,7 @@ void handle_sensors(void) {
   }
 
   if (display_mode == DISPLAY_ADJUST_RIGHT1) {
-    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         pulse_bpm_2++;
         calculate_pulse();
@@ -350,7 +356,7 @@ void handle_sensors(void) {
   }
 
   if (display_mode == DISPLAY_ADJUST_RIGHT2) {
-    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         pulse_length_2++;
         calculate_pulse();
@@ -366,21 +372,36 @@ void handle_sensors(void) {
   }
 
   if (display_mode == DISPLAY_ADJUST_BRIGHTNESS) {
-    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         brightness++;
-        sendBrightness();
+        sendLEDMode();
       }
     }
 
     if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
       if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
         brightness--;
-        sendBrightness();
+        sendLEDMode();
       }
     }
   }
 
+  if (display_mode == DISPLAY_LED_MODE) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        led_mode = (led_mode + 1) % LED_MODE_MAX;
+        sendLEDMode();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        led_mode_value = (led_mode_value + 1) % 100;
+        sendLEDMode();
+      }
+    }
+  }
 }
 
 void initialize_display() {
@@ -450,6 +471,7 @@ void update_lcd() {
       lcd.print("    ");
       break;
     }
+
     case DISPLAY_ADJUST_BRIGHTNESS: {
       lcd.setCursor(0, 0);
       lcd.print("BRIGHTNESS:");
@@ -457,6 +479,28 @@ void update_lcd() {
       lcd.print("       ");
       break;
     }
+
+    case DISPLAY_LED_MODE: {
+      lcd.setCursor(0, 0);
+      lcd.print("LEDs:");
+      switch (led_mode) {
+        case LED_MODE_ON: {
+          lcd.print("ON");
+          break;
+        }
+        case LED_MODE_BLINK: {
+          lcd.print("BLINK");
+          break;
+        }
+      }
+      lcd.print("       ");
+
+      lcd.setCursor(0, 1);
+      lcd.print("VALUE:");
+      lcd.print(led_mode_value);
+      break;
+    }
+
   }
 }
 
