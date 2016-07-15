@@ -36,6 +36,8 @@ void initialize_switches(void) {
   for (byte i = 0; i < NUM_SWITCHES; i++) {
     pinMode(switch_pins[i], INPUT);
   }
+
+  calculate_pulse();
 }
 
 void sensor_switches(void) {
@@ -75,8 +77,21 @@ void sensor_cap(void)
 /******* Handle Sensors *******************************************************/
 
 
-byte display_mode = 1;
-#define NUM_DISPLAY_MODES 2
+byte display_mode = 0;
+#define NUM_DISPLAY_MODES 3
+
+uint16_t pulse_bpm_1 = 120;
+uint16_t pulse_length_1 = 25;
+uint16_t pulse_delay_1;
+
+uint16_t pulse_bpm_2 = 240;
+uint16_t pulse_length_2 = 25;
+uint16_t pulse_delay_2;
+
+void calculate_pulse() {
+  pulse_delay_1 = ((uint16_t)1000 * (uint16_t)60 / pulse_bpm_1) - pulse_length_1;
+  pulse_delay_2 = ((uint16_t)1000 * (uint16_t)60 / pulse_bpm_2) - pulse_length_2;
+}
 
 void sendOn(uint16_t address, uint8_t output) {
   sendHMTLValue(address, output, 255);
@@ -161,6 +176,10 @@ void handle_sensors(void) {
           switch_states[POOFER1_PILOT_SWITCH]) {
     /* Poofers are enabled and the pilot is open */
 
+    /*
+     * Main control box sensors
+     */
+
     /* Brief burst */
     if (touch_sensor.changed(POOFER1_QUICK_POOF_SENSOR) &&
         touch_sensor.touched(POOFER1_QUICK_POOF_SENSOR)) {
@@ -173,6 +192,7 @@ void handle_sensors(void) {
     }
 
     /* On for length of touch */
+#if 0
     if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
       sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
     } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
@@ -186,7 +206,40 @@ void handle_sensors(void) {
       sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
       sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
     }
+#else
+    static unsigned long poof1_on_ms = 0;
+    static unsigned long poof2_on_ms = 0;
 
+    if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
+      if (poof1_on_ms == 0) {
+        poof1_on_ms = millis();
+      } else if (poof1_on_ms - millis() > 2*1000) {
+        sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
+      }
+    } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+      poof1_on_ms = 0;
+    }
+
+    if (touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
+      if (poof2_on_ms == 0) {
+        poof2_on_ms = millis();
+      } else if (poof2_on_ms - millis() > 2*1000) {
+        sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 250);
+      }
+    } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
+      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+      poof2_on_ms = 0;
+    }
+#endif
+
+    /*
+     * External Sensors
+     */
+
+#if 0
     /* Pulse the poofers */
     if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
@@ -207,6 +260,28 @@ void handle_sensors(void) {
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
       }
     }
+#else
+    /* Pulse the poofers */
+    if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
+      if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
+        sendPulse(POOFER1_ADDRESS, POOFER1_POOF1,
+                /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
+      } else if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
+        sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+        sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
+      if (touch_sensor.touched(SENSOR_EXTERNAL_4)) {
+        sendPulse(POOFER1_ADDRESS, POOFER1_POOF2,
+                /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
+      } else if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
+        sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+        sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+      }
+    }
+#endif
 
     /* Minimal burst */
     if (touch_sensor.changed(SENSOR_EXTERNAL_2) &&
@@ -226,6 +301,43 @@ void handle_sensors(void) {
     lcd.clear();
     display_mode = (display_mode + 1) % NUM_DISPLAY_MODES;
   }
+
+  if (display_mode == 1) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        DEBUG1_PRINTLN("LEFT UP");
+        pulse_bpm_1++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        DEBUG1_PRINTLN("LEFT DOWN");
+        pulse_bpm_1--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == 2) {
+    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        DEBUG1_PRINTLN("RIGHT UP");
+        pulse_bpm_2++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        DEBUG1_PRINTLN("RIGHT DOWN");
+        pulse_bpm_2--;
+        calculate_pulse();
+      }
+    }
+  }
+
 }
 
 void initialize_display() {
@@ -242,7 +354,7 @@ void update_lcd() {
   static uint32_t last_update = 0;
 
   switch (display_mode) {
-    case 1: {
+    case 0: {
       if (data_changed) {
         lcd.setCursor(0, 0);
         lcd.print("C:");
@@ -262,95 +374,36 @@ void update_lcd() {
       }
       break;
     }
-    case 0: {
-#if 0
-      boolean changed1 = poof1.checkChanged();
-      boolean changed2 = poof2.checkChanged();
-      boolean updated = changed1 || changed2
-        || ((now - last_update) > 1000);
+    case 1: {
+      lcd.setCursor(0, 0);
+      lcd.print("LEFT BPM:");
+      lcd.print(pulse_bpm_1);
+      lcd.print("    ");
 
-      if (updated) {
-        last_update = now;
-
-        lcd.setCursor(0, 0);
-        lcd.print("FIRE 1:");
-        if (poof1.igniterOn()) {
-          lcd.print(" I");
-          uint32_t remaining = poof1.ignite_remaining() / 1000;
-          lcd.print(remaining);
-        } else if (poof1.igniterEnabled()) {
-          lcd.print(" E");
-        } else {
-          lcd.print(" -");
-        }
-
-        if (poof1.poofOn()) {
-          lcd.print(" P");
-        } else if (poof1.poofEnabled() && poof1.poofReady()) {
-          lcd.print(" R");
-        } else if (poof1.poofEnabled()) {
-          lcd.print(" E");
-        } else {
-          lcd.print(" -");
-        }
-        lcd.print("     ");
-
-        lcd.setCursor(0, 1);
-        lcd.print("FIRE 2:");
-        if (poof2.igniterOn()) {
-          lcd.print(" I");\
-          uint32_t remaining = poof2.ignite_remaining() / 1000;
-          lcd.print(remaining);
-        } else if (poof2.igniterEnabled()) {
-          lcd.print(" E");
-        } else {
-          lcd.print(" -");
-        }
-
-        if (poof2.poofOn()) {
-          lcd.print(" P");
-        } else if (poof2.poofEnabled() && poof2.poofReady()) {
-          lcd.print(" R");
-        } else if (poof2.poofEnabled()) {
-          lcd.print(" E");
-        } else {
-          lcd.print(" -");
-        }
-        lcd.print("     ");
-
-        /*
-         * Update the bottom LEDs based on current state
-         */
-        for (byte i = 8; i < 14; i++) {
-          if (poof1.igniterOn()) {
-            pixels.setPixelRGB(i % 12, 128, 0, 0);
-          } else if (poof1.poofEnabled() && poof1.poofReady()) {
-            pixels.setPixelRGB(i % 12, 0, 255, 0);
-          } else if (poof1.igniterEnabled()) {
-            pixels.setPixelRGB(i % 12, 128, 128, 0);
-          } else {
-            pixels.setPixelRGB(i % 12, 255, 0, 255);
-          }
-        }
-
-        for (byte i = 2; i < 8; i++) {
-          if (poof2.igniterOn()) {
-            pixels.setPixelRGB(i % 12, 128, 0, 0);
-          } else if (poof2.poofEnabled() && poof2.poofReady()) {
-            pixels.setPixelRGB(i % 12, 0, 255, 0);
-          } else if (poof2.igniterEnabled()) {
-            pixels.setPixelRGB(i % 12, 128, 128, 0);
-          } else {
-            pixels.setPixelRGB(i % 12, 255, 0, 255);
-          }
-        }
-
-        pixels.update();
-      }
-#endif
-
+      lcd.setCursor(0, 1);
+      lcd.print("Len:");
+      lcd.print(pulse_length_1);
+      lcd.print(" D:");
+      lcd.print(pulse_delay_1);
+      lcd.print("    ");
       break;
     }
+
+    case 2: {
+      lcd.setCursor(0, 0);
+      lcd.print("RIGHT BPM:");
+      lcd.print(pulse_bpm_2);
+      lcd.print("    ");
+
+      lcd.setCursor(0, 1);
+      lcd.print("Len:");
+      lcd.print(pulse_length_2);
+      lcd.print(" D:");
+      lcd.print(pulse_delay_2);
+      lcd.print("    ");
+      break;
+    }
+
   }
 }
 

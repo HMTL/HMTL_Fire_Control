@@ -43,6 +43,7 @@ extern uint32_t sensor_state;
 
 void initialize_switches();
 void sensor_switches();
+void calculate_pulse();
 
 extern MPR121 touch_sensor;
 void sensor_cap();
