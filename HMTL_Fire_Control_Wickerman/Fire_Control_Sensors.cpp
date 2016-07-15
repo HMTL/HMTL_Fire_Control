@@ -76,9 +76,14 @@ void sensor_cap(void)
 
 /******* Handle Sensors *******************************************************/
 
+#define DISPLAY_CAP_SENSORS   0
+#define DISPLAY_ADJUST_LEFT1  1
+#define DISPLAY_ADJUST_LEFT2  2
+#define DISPLAY_ADJUST_RIGHT1 3
+#define DISPLAY_ADJUST_RIGHT2 4
 
 byte display_mode = 0;
-#define NUM_DISPLAY_MODES 3
+#define NUM_DISPLAY_MODES 5
 
 uint16_t pulse_bpm_1 = 120;
 uint16_t pulse_length_1 = 25;
@@ -239,28 +244,6 @@ void handle_sensors(void) {
      * External Sensors
      */
 
-#if 0
-    /* Pulse the poofers */
-    if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
-      if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
-        sendPulse(POOFER1_ADDRESS, POOFER1_POOF1,
-                /*on period*/ 25, /*off period*/ 100);
-      } else if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
-        sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
-      }
-    }
-
-    if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
-      if (touch_sensor.touched(SENSOR_EXTERNAL_4)) {
-        sendPulse(POOFER1_ADDRESS, POOFER1_POOF2,
-                /*on period*/ 25, /*off period*/ 100);
-      } else if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
-        sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
-      }
-    }
-#else
     /* Pulse the poofers */
     if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
@@ -281,7 +264,6 @@ void handle_sensors(void) {
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
       }
     }
-#endif
 
     /* Minimal burst */
     if (touch_sensor.changed(SENSOR_EXTERNAL_2) &&
@@ -302,7 +284,7 @@ void handle_sensors(void) {
     display_mode = (display_mode + 1) % NUM_DISPLAY_MODES;
   }
 
-  if (display_mode == 1) {
+  if (display_mode == DISPLAY_ADJUST_LEFT1) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         DEBUG1_PRINTLN("LEFT UP");
@@ -320,10 +302,25 @@ void handle_sensors(void) {
     }
   }
 
-  if (display_mode == 2) {
+  if (display_mode == DISPLAY_ADJUST_LEFT2) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_length_1++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_length_1--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == DISPLAY_ADJUST_RIGHT1) {
     if (touch_sensor.touched(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
-        DEBUG1_PRINTLN("RIGHT UP");
         pulse_bpm_2++;
         calculate_pulse();
       }
@@ -331,13 +328,27 @@ void handle_sensors(void) {
 
     if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
       if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
-        DEBUG1_PRINTLN("RIGHT DOWN");
         pulse_bpm_2--;
         calculate_pulse();
       }
     }
   }
 
+  if (display_mode == DISPLAY_ADJUST_RIGHT2) {
+    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_length_2++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_length_2--;
+        calculate_pulse();
+      }
+    }
+  }
 }
 
 void initialize_display() {
@@ -374,7 +385,9 @@ void update_lcd() {
       }
       break;
     }
-    case 1: {
+    case DISPLAY_ADJUST_LEFT1:
+    case DISPLAY_ADJUST_LEFT2:
+    {
       lcd.setCursor(0, 0);
       lcd.print("LEFT BPM:");
       lcd.print(pulse_bpm_1);
@@ -389,7 +402,9 @@ void update_lcd() {
       break;
     }
 
-    case 2: {
+    case DISPLAY_ADJUST_RIGHT1:
+    case DISPLAY_ADJUST_RIGHT2:
+    {
       lcd.setCursor(0, 0);
       lcd.print("RIGHT BPM:");
       lcd.print(pulse_bpm_2);
