@@ -81,9 +81,12 @@ void sensor_cap(void)
 #define DISPLAY_ADJUST_LEFT2  2
 #define DISPLAY_ADJUST_RIGHT1 3
 #define DISPLAY_ADJUST_RIGHT2 4
+#define DISPLAY_ADJUST_BRIGHTNESS 5
+
+#define DISPLAY_MAX (5 + 1)
 
 byte display_mode = 0;
-#define NUM_DISPLAY_MODES 5
+#define NUM_DISPLAY_MODES DISPLAY_MAX
 
 uint16_t pulse_bpm_1 = 120;
 uint16_t pulse_length_1 = 25;
@@ -92,6 +95,15 @@ uint16_t pulse_delay_1;
 uint16_t pulse_bpm_2 = 240;
 uint16_t pulse_length_2 = 25;
 uint16_t pulse_delay_2;
+
+uint8_t brightness = 96;
+
+boolean lights_on = false;
+void sendBrightness() {
+  if (lights_on) {
+    sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, brightness);
+  }
+}
 
 void calculate_pulse() {
   pulse_delay_1 = ((uint16_t)1000 * (uint16_t)60 / pulse_bpm_1) - pulse_length_1;
@@ -127,13 +139,14 @@ void handle_sensors(void) {
   if (switch_changed[LIGHTS_ON_SWITCH]) {
     if (switch_states[LIGHTS_ON_SWITCH]) {
       DEBUG1_PRINTLN("LIGHTS ON");
-      sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, 128);
+      lights_on = true;
+      sendBrightness();
     } else {
       DEBUG1_PRINTLN("LIGHTS OFF");
+      lights_on = false;
       sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
     }
   }
-
 
   /* Igniter switches */
   if (switch_states[POOFER1_IGNITER_SWITCH]) {
@@ -173,7 +186,7 @@ void handle_sensors(void) {
 
       sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
       sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
-      setCancel();
+      setSparkle();
     }
   }
 
@@ -218,7 +231,8 @@ void handle_sensors(void) {
     if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
       if (poof1_on_ms == 0) {
         poof1_on_ms = millis();
-      } else if (poof1_on_ms - millis() > 2*1000) {
+      }
+      if (poof1_on_ms - millis() <= 2*1000) {
         sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
       }
     } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
@@ -230,7 +244,8 @@ void handle_sensors(void) {
     if (touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
       if (poof2_on_ms == 0) {
         poof2_on_ms = millis();
-      } else if (poof2_on_ms - millis() > 2*1000) {
+      }
+      if (poof2_on_ms - millis() <= 2*1000) {
         sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 250);
       }
     } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
@@ -250,8 +265,8 @@ void handle_sensors(void) {
         sendPulse(POOFER1_ADDRESS, POOFER1_POOF1,
                 /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+        sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
       }
     }
 
@@ -260,8 +275,8 @@ void handle_sensors(void) {
         sendPulse(POOFER1_ADDRESS, POOFER1_POOF2,
                 /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+        sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
       }
     }
 
@@ -349,6 +364,23 @@ void handle_sensors(void) {
       }
     }
   }
+
+  if (display_mode == DISPLAY_ADJUST_BRIGHTNESS) {
+    if (touch_sensor.touched(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        brightness++;
+        sendBrightness();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        brightness--;
+        sendBrightness();
+      }
+    }
+  }
+
 }
 
 void initialize_display() {
@@ -418,7 +450,13 @@ void update_lcd() {
       lcd.print("    ");
       break;
     }
-
+    case DISPLAY_ADJUST_BRIGHTNESS: {
+      lcd.setCursor(0, 0);
+      lcd.print("BRIGHTNESS:");
+      lcd.print(brightness);
+      lcd.print("       ");
+      break;
+    }
   }
 }
 
