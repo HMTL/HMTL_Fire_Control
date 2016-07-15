@@ -108,38 +108,37 @@ void handle_sensors(void) {
     if (switch_states[LIGHTS_ON_SWITCH]) {
       DEBUG1_PRINTLN("LIGHTS ON");
       sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, 128);
-//      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS1, 128);
-//      sendHMTLValue(LIGHTS_ADDRESS, LIGHTS2, 128);
     } else {
       DEBUG1_PRINTLN("LIGHTS OFF");
       sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
-//      sendOff(LIGHTS_ADDRESS, LIGHTS1);
-//      sendOff(LIGHTS_ADDRESS, LIGHTS2);
     }
   }
 
 
   /* Igniter switches */
-  if (switch_changed[POOFER1_IGNITER_SWITCH]) {
-    if (switch_states[POOFER1_IGNITER_SWITCH]) {
+  if (switch_states[POOFER1_IGNITER_SWITCH]) {
+    static unsigned long last_on = 0;
+    if (millis() - last_on > 15 * 1000) {
       DEBUG1_PRINTLN("IGNITE ON");
       sendBurst(POOFER1_ADDRESS, POOFER1_IGNITER, 30*1000);
-      //sendOn(POOFER1_ADDRESS, POOFER1_IGNITER);
-    } else {
-      DEBUG1_PRINTLN("IGNITE OFF");
-      sendOff(POOFER1_ADDRESS, POOFER1_IGNITER);
+      last_on = millis();
     }
+  } else if (switch_changed[POOFER1_IGNITER_SWITCH]) {
+    DEBUG1_PRINTLN("IGNITE OFF");
+    sendOff(POOFER1_ADDRESS, POOFER1_IGNITER);
   }
 
   /* Pilot Switch */
-  if (switch_changed[POOFER1_PILOT_SWITCH]) {
-    if (switch_states[POOFER1_PILOT_SWITCH]) {
+  if (switch_states[POOFER1_PILOT_SWITCH]) {
+    static unsigned long last_on = 0;
+    if (millis() - last_on > 15 * 1000) {
       DEBUG1_PRINTLN("PILOT ON");
-      sendOn(POOFER1_ADDRESS, POOFER1_PILOT);
-    } else {
-      DEBUG1_PRINTLN("PILOT OFF");
-      sendOff(POOFER1_ADDRESS, POOFER1_PILOT);
+      sendBurst(POOFER1_ADDRESS, POOFER1_PILOT, 30*1000);
+      last_on = millis();
     }
+  } else if (switch_changed[POOFER1_PILOT_SWITCH]) {
+    DEBUG1_PRINTLN("PILOT OFF");
+    sendOff(POOFER1_ADDRESS, POOFER1_PILOT);
   }
 
   // Poofer Enable/Disable
