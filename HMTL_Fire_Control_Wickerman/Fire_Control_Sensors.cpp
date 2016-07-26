@@ -270,9 +270,14 @@ void handle_sensors(void) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
         sendPulse(POOFER1_ADDRESS, POOFER1_POOF1,
                 /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
+        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,
+                /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
         sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+
+        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+        sendLEDMode();
       }
     }
 
@@ -280,9 +285,14 @@ void handle_sensors(void) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_4)) {
         sendPulse(POOFER1_ADDRESS, POOFER1_POOF2,
                 /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
+        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,
+                /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
         sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
         sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+
+        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+        sendLEDMode();
       }
     }
 
@@ -391,6 +401,7 @@ void handle_sensors(void) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         led_mode = (led_mode + 1) % LED_MODE_MAX;
+        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
         sendLEDMode();
       }
     }
