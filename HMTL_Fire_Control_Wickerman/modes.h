@@ -21,6 +21,9 @@ void setSparkle();
 void setBlink();
 void setCancel();
 
+
+boolean followup_actions();
+
 /*******************************************************************************
  * Control box specific modes
  */

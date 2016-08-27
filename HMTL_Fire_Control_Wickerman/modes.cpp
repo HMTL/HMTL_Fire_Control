@@ -6,6 +6,9 @@
  * Message handling
  ******************************************************************************/
 
+#ifdef DEBUG_LEVEL_MODES
+#define DEBUG_LEVEL DEBUG_LEVEL_MODES
+#endif
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL DEBUG_HIGH
 #endif
@@ -26,6 +29,7 @@
 
 #include "HMTL_Fire_Control.h"
 #include "modes.h"
+#include "Fire_Control_Sensors.h"
 
 /* List of available programs */
 hmtl_program_t program_functions[] = {
@@ -113,6 +117,11 @@ boolean messages_and_modes(void) {
     update = true;
   }
 
+  /* Execute any follow-up changes */
+  if (followup_actions()) {
+    update = true;
+  }
+
   if (update) {
     /*
      * An output may have been updated by message or active program,
@@ -124,4 +133,31 @@ boolean messages_and_modes(void) {
   }
 
   return update;
+}
+
+/*
+ * Perform an action after all programs have been executed.  This can be used
+ * for things like overriding LED values and things of that nature.
+ */
+boolean followup_actions() {
+  boolean changed = false;
+
+  for (byte i = 0; i < 12; i++) {
+    if (touch_sensor.touched(i)) {
+      pixels.setPixelRGB(sensor_to_led(i), 255,0,0);
+      if (touch_sensor.changed(i)) {
+        /* Always set the value in case another method had changed it,
+         * but we only need to force an update if this was a change
+         */
+        changed = true;
+      }
+
+    } else if (touch_sensor.changed(i)) {
+      pixels.setPixelRGB(sensor_to_led(i), 0,0,0);
+      changed = true;
+    }
+
+  }
+
+  return changed;
 }

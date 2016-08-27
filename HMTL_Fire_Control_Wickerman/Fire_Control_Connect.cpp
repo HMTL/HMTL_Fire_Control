@@ -15,7 +15,12 @@
 #include "FastLED.h"
 
 
-#define DEBUG_LEVEL DEBUG_MID
+#ifdef DEBUG_LEVEL_CONNECT
+#define DEBUG_LEVEL DEBUG_LEVEL_CONNECT
+#endif
+#ifndef DEBUG_LEVEL
+#define DEBUG_LEVEL DEBUG_HIGH
+#endif
 #include "Debug.h"
 
 #include "GeneralUtils.h"

@@ -13,7 +13,14 @@
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"
 
+/*
+ * Definitions for the different controllers that work with this code
+ */
+#define OBJECT_TYPE_HMTL 4
+#define OBJECT_TYPE_TOUCH_CONTROLLER 5
+
 #define BAUD 57600
+
 
 // LCD display
 extern LiquidCrystal lcd;

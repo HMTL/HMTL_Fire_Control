@@ -4,7 +4,12 @@
  * Copyright: 2014
  ******************************************************************************/
 
-#define DEBUG_LEVEL DEBUG_TRACE
+#ifdef DEBUG_LEVEL_SENSORS
+  #define DEBUG_LEVEL DEBUG_LEVEL_SENSORS
+#endif
+#ifndef DEBUG_LEVEL
+  #define DEBUG_LEVEL DEBUG_HIGH
+#endif
 #include <Debug.h>
 
 #include <Arduino.h>
@@ -138,6 +143,37 @@ void sendLEDMode() {
   }
 }
 
+
+/* Convert between a sensor number and the LED associated with it */
+byte sensor_to_led(byte sensor) {
+  byte led;
+
+#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+  /*
+   * Sensor  LED
+   * 11       0
+   * 10       1
+   *  9       2
+   *  8       3
+   *  7       4
+   *  6       5
+   *  5       11
+   *  4       10
+   *  3       9
+   *  2       8
+   *  1       7
+   *  0       6
+   */
+  if (sensor > 5) {
+    led = (byte)11 - sensor;
+  } else {
+    led = sensor + (byte)6;
+  }
+#endif
+
+  return led;
+}
+
 void handle_sensors(void) {
   static unsigned long last_send = millis();
 
@@ -180,7 +216,7 @@ void handle_sensors(void) {
     sendOff(POOFER1_ADDRESS, POOFER1_PILOT);
   }
 
-  // Poofer Enable/Disable
+  /*  Poofer Enable Switch */
   if (switch_changed[POOFER1_ENABLE_SWITCH]) {
     if (switch_states[POOFER1_ENABLE_SWITCH]) {
       DEBUG1_PRINTLN("POOFERS ENABLED");
@@ -195,6 +231,10 @@ void handle_sensors(void) {
       setSparkle();
     }
   }
+
+#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+  return;
+#endif
 
   if (switch_states[POOFER1_ENABLE_SWITCH] &&
       switch_states[POOFER1_PILOT_SWITCH]) {

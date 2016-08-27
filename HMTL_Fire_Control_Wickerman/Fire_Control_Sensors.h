@@ -28,4 +28,6 @@ extern uint8_t display_mode;
 extern uint8_t led_mode;
 extern uint8_t led_mode_value;
 
+byte sensor_to_led(byte sensor);
+
 #endif
