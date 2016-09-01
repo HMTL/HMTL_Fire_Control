@@ -32,7 +32,7 @@ hmtl_program_t program_functions[] = {
         // Programs from HMTLPrograms
         { HMTL_PROGRAM_NONE, NULL, NULL},
         { HMTL_PROGRAM_BLINK, program_blink, program_blink_init },
-        { HMTL_PROGRAM_TIMED_CHANGE, program_timed_change, program_timed_change_init },
+        //{ HMTL_PROGRAM_TIMED_CHANGE, program_timed_change, program_timed_change_init },
         //{ HMTL_PROGRAM_FADE, program_fade, program_fade_init }
         { HMTL_PROGRAM_SPARKLE, program_sparkle, program_sparkle_init },
 

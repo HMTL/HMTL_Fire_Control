@@ -83,7 +83,7 @@ extern byte *send_buffer;
 
 // Poofer definitions
 #ifndef POOFER1_ADDRESS
-  #define POOFER1_ADDRESS  0x41
+  #define POOFER1_ADDRESS  0x40
 #endif
 #define POOFER1_IGNITER  0x0
 #define POOFER1_PILOT    0x1
@@ -91,7 +91,7 @@ extern byte *send_buffer;
 #define POOFER1_POOF2    0x3
 
 #ifndef LIGHTS_ADDRESS
-  #define LIGHTS_ADDRESS  0x40
+  #define LIGHTS_ADDRESS  0x45
 #endif
 #define LIGHTS1 0x0
 #define LIGHTS2 0x1

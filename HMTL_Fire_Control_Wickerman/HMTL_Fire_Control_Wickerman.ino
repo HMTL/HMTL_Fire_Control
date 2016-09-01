@@ -134,12 +134,15 @@ void setup() {
 
   init_modes(sockets, num_sockets);
 
+  touch_sensor.setThresholds(3, 1);
+
   /* Setup the sensors */
   initialize_switches();
 
   DEBUG2_PRINTLN("* Wickerman Fire Control Initialized *");
   DEBUG2_VALUELN(" Build=", HMTL_FIRE_CONTROL_BUILD);
   DEBUG_MEMORY(DEBUG_HIGH);
+
 
   DEBUG2_VALUE("POOF_ADDRESS=", poofer_address);
   DEBUG2_VALUELN("LIGHTS_ADDRESS=", lights_address);

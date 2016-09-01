@@ -16,7 +16,8 @@
 #define DISPLAY_ADJUST_RIGHT2 4
 #define DISPLAY_ADJUST_BRIGHTNESS 5
 #define DISPLAY_LED_MODE 6
-#define DISPLAY_MAX (6 + 1)
+#define DISPLAY_ADDRESS_MODE 7
+#define DISPLAY_MAX (7 + 1)
 
 extern uint8_t display_mode;
 #define NUM_DISPLAY_MODES DISPLAY_MAX

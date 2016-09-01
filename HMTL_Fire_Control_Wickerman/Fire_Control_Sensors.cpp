@@ -124,17 +124,17 @@ void sendLEDMode() {
   if (lights_on) {
     switch (led_mode) {
       case LED_MODE_ON: {
-        sendHMTLValue(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS, brightness);
+        sendHMTLValue(lights_address, HMTL_ALL_OUTPUTS, brightness);
         break;
       }
       case LED_MODE_BLINK: {
-        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,led_mode_value, led_mode_value);
+        sendPulse(lights_address, HMTL_ALL_OUTPUTS,led_mode_value, led_mode_value);
         break;
       }
     }
   } else {
-    sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
-    sendOff(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+    sendCancel(lights_address, HMTL_ALL_OUTPUTS);
+    sendOff(lights_address, HMTL_ALL_OUTPUTS);
   }
 }
 
@@ -159,7 +159,7 @@ void handle_sensors(void) {
     static unsigned long last_on = 0;
     if (millis() - last_on > 15 * 1000) {
       DEBUG1_PRINTLN("IGNITE ON");
-      sendBurst(POOFER1_ADDRESS, POOFER1_IGNITER, 30*1000);
+      sendBurst(POOFER1_ADDRESS, POOFER1_IGNITER, 30 * 1000);
       last_on = millis();
     }
   } else if (switch_changed[POOFER1_IGNITER_SWITCH]) {
@@ -172,7 +172,7 @@ void handle_sensors(void) {
     static unsigned long last_on = 0;
     if (millis() - last_on > 15 * 1000) {
       DEBUG1_PRINTLN("PILOT ON");
-      sendBurst(POOFER1_ADDRESS, POOFER1_PILOT, 30*1000);
+      sendBurst(POOFER1_ADDRESS, POOFER1_PILOT, 30 * 1000);
       last_on = millis();
     }
   } else if (switch_changed[POOFER1_PILOT_SWITCH]) {
@@ -187,17 +187,17 @@ void handle_sensors(void) {
       setBlink();
     } else {
       DEBUG1_PRINTLN("POOFERS DISABLED");
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendCancel(poofer_address, POOFER1_POOF1);
+      sendCancel(poofer_address, POOFER1_POOF2);
 
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendOff(poofer_address, POOFER1_POOF1);
+      sendOff(poofer_address, POOFER1_POOF2);
       setSparkle();
     }
   }
 
   if (switch_states[POOFER1_ENABLE_SWITCH] &&
-          switch_states[POOFER1_PILOT_SWITCH]) {
+      switch_states[POOFER1_PILOT_SWITCH]) {
     /* Poofers are enabled and the pilot is open */
 
     /*
@@ -207,30 +207,63 @@ void handle_sensors(void) {
     /* Brief burst */
     if (touch_sensor.changed(POOFER1_QUICK_POOF_SENSOR) &&
         touch_sensor.touched(POOFER1_QUICK_POOF_SENSOR)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 50);
+      sendBurst(poofer_address, POOFER1_POOF1, 50);
     }
 
     if (touch_sensor.changed(POOFER2_QUICK_POOF_SENSOR) &&
         touch_sensor.touched(POOFER2_QUICK_POOF_SENSOR)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 50);
+      sendBurst(poofer_address, POOFER1_POOF2, 50);
     }
 
-    /* On for length of touch */
 #if 0
+    /* On for length of touch */
     if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
+      sendBurst(poofer_address, POOFER1_POOF1, 250);
     } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendOff(poofer_address, POOFER1_POOF1);
+      sendCancel(poofer_address, POOFER1_POOF1);
     }
 
     if (touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 250);
+      sendBurst(poofer_address, POOFER1_POOF2, 250);
     } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendOff(poofer_address, POOFER1_POOF2);
+      sendCancel(poofer_address, POOFER1_POOF2);
     }
+#elif 1
+    /* Pulse the poofers */
+    if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
+      if (touch_sensor.touched(POOFER1_LONG_POOF_SENSOR)) {
+        sendPulse(poofer_address, POOFER1_POOF1,
+                /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
+        sendPulse(lights_address, HMTL_ALL_OUTPUTS,
+                /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
+      } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
+        sendCancel(poofer_address, POOFER1_POOF1);
+        sendOff(poofer_address, POOFER1_POOF1);
+
+        sendCancel(lights_address, HMTL_ALL_OUTPUTS);
+        sendLEDMode();
+      }
+    }
+
+    if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
+      if (touch_sensor.touched(POOFER2_LONG_POOF_SENSOR)) {
+        sendPulse(poofer_address, POOFER1_POOF2,
+                /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
+        sendPulse(lights_address, HMTL_ALL_OUTPUTS,
+                /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
+      } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
+        sendCancel(poofer_address, POOFER1_POOF2);
+        sendOff(poofer_address, POOFER1_POOF2);
+
+        sendCancel(lights_address, HMTL_ALL_OUTPUTS);
+        sendLEDMode();
+      }
+    }
+
 #else
+    /* On for length of touch up to maximum value */
     static unsigned long poof1_on_ms = 0;
     static unsigned long poof2_on_ms = 0;
 
@@ -238,12 +271,12 @@ void handle_sensors(void) {
       if (poof1_on_ms == 0) {
         poof1_on_ms = millis();
       }
-      if (poof1_on_ms - millis() <= 2*1000) {
-        sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 250);
+      if (poof1_on_ms - millis() <= 2 * 1000) {
+        sendBurst(poofer_address, POOFER1_POOF1, 250);
       }
     } else if (touch_sensor.changed(POOFER1_LONG_POOF_SENSOR)) {
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
+      sendOff(poofer_address, POOFER1_POOF1);
+      sendCancel(poofer_address, POOFER1_POOF1);
       poof1_on_ms = 0;
     }
 
@@ -251,16 +284,17 @@ void handle_sensors(void) {
       if (poof2_on_ms == 0) {
         poof2_on_ms = millis();
       }
-      if (poof2_on_ms - millis() <= 2*1000) {
-        sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 250);
+      if (poof2_on_ms - millis() <= 2 * 1000) {
+        sendBurst(poofer_address, POOFER1_POOF2, 250);
       }
     } else if (touch_sensor.changed(POOFER2_LONG_POOF_SENSOR)) {
-      sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
-      sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
+      sendOff(poofer_address, POOFER1_POOF2);
+      sendCancel(poofer_address, POOFER1_POOF2);
       poof2_on_ms = 0;
     }
 #endif
 
+#ifdef FIRE_CONTROLLER
     /*
      * External Sensors
      */
@@ -268,30 +302,30 @@ void handle_sensors(void) {
     /* Pulse the poofers */
     if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_1)) {
-        sendPulse(POOFER1_ADDRESS, POOFER1_POOF1,
+        sendPulse(poofer_address, POOFER1_POOF1,
                 /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
-        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,
+        sendPulse(lights_address, HMTL_ALL_OUTPUTS,
                 /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_1)) {
-        sendCancel(POOFER1_ADDRESS, POOFER1_POOF1);
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF1);
+        sendCancel(poofer_address, POOFER1_POOF1);
+        sendOff(poofer_address, POOFER1_POOF1);
 
-        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+        sendCancel(lights_address, HMTL_ALL_OUTPUTS);
         sendLEDMode();
       }
     }
 
     if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
       if (touch_sensor.touched(SENSOR_EXTERNAL_4)) {
-        sendPulse(POOFER1_ADDRESS, POOFER1_POOF2,
+        sendPulse(poofer_address, POOFER1_POOF2,
                 /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
-        sendPulse(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS,
+        sendPulse(lights_address, HMTL_ALL_OUTPUTS,
                 /*on period*/ pulse_length_2, /*off period*/ pulse_delay_2);
       } else if (touch_sensor.changed(SENSOR_EXTERNAL_4)) {
-        sendCancel(POOFER1_ADDRESS, POOFER1_POOF2);
-        sendOff(POOFER1_ADDRESS, POOFER1_POOF2);
+        sendCancel(poofer_address, POOFER1_POOF2);
+        sendOff(poofer_address, POOFER1_POOF2);
 
-        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+        sendCancel(lights_address, HMTL_ALL_OUTPUTS);
         sendLEDMode();
       }
     }
@@ -299,14 +333,16 @@ void handle_sensors(void) {
     /* Minimal burst */
     if (touch_sensor.changed(SENSOR_EXTERNAL_2) &&
         touch_sensor.touched(SENSOR_EXTERNAL_2)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF1, 25);
+      sendBurst(poofer_address, POOFER1_POOF1, 25);
     }
 
     if (touch_sensor.changed(SENSOR_EXTERNAL_3) &&
         touch_sensor.touched(SENSOR_EXTERNAL_3)) {
-      sendBurst(POOFER1_ADDRESS, POOFER1_POOF2, 25);
+      sendBurst(poofer_address, POOFER1_POOF2, 25);
     }
-  }
+
+#endif
+  } // END: Poofer controls
 
   /* Change display mode */
   if (touch_sensor.changed(SENSOR_LCD_LEFT) &&
@@ -315,6 +351,9 @@ void handle_sensors(void) {
     display_mode = (display_mode + 1) % NUM_DISPLAY_MODES;
   }
 
+  /*
+   * Display adjustments
+   */
   if (display_mode == DISPLAY_ADJUST_LEFT1) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
@@ -401,7 +440,7 @@ void handle_sensors(void) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         led_mode = (led_mode + 1) % LED_MODE_MAX;
-        sendCancel(LIGHTS_ADDRESS, HMTL_ALL_OUTPUTS);
+        sendCancel(lights_address, HMTL_ALL_OUTPUTS);
         sendLEDMode();
       }
     }
@@ -413,6 +452,27 @@ void handle_sensors(void) {
       }
     }
   }
+
+  if (display_mode == DISPLAY_ADDRESS_MODE) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        poofer_address++;
+        if (poofer_address > 72) {
+          poofer_address = 64;
+        }
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        lights_address++;
+        if (lights_address > 72) {
+          lights_address = 64;
+        }
+      }
+    }
+  }
+
 }
 
 void initialize_display() {
@@ -509,6 +569,17 @@ void update_lcd() {
       lcd.setCursor(0, 1);
       lcd.print("VALUE:");
       lcd.print(led_mode_value);
+      break;
+    }
+
+    case DISPLAY_ADDRESS_MODE: {
+      lcd.setCursor(0, 0);
+      lcd.print("FIRE_ADDR:");
+      lcd.print(poofer_address);
+
+      lcd.setCursor(0, 1);
+      lcd.print("LIGHT_ADDR:");
+      lcd.print(lights_address);
       break;
     }
 
