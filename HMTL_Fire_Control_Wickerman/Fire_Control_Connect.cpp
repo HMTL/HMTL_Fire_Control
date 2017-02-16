@@ -39,6 +39,9 @@
 
 
 void sendHMTLValue(uint16_t address, uint8_t output, int value) {
+  DEBUG3_VALUE("sendValue:", value);
+  DEBUG3_VALUE(" a:", address);
+  DEBUG3_VALUELN(" o:", output);
   hmtl_send_value(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
 		  address, output, value);
 }
@@ -47,6 +50,10 @@ void sendHMTLTimedChange(uint16_t address, uint8_t output,
 			 uint32_t change_period,
 			 uint32_t start_color,
 			 uint32_t stop_color) {
+  DEBUG3_VALUE("sendTimed:", change_period);
+  DEBUG3_VALUE(" a:", address);
+  DEBUG3_VALUELN(" o:", output);
+
   hmtl_send_timed_change(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
 			 address, output,
 			 change_period,
@@ -55,6 +62,9 @@ void sendHMTLTimedChange(uint16_t address, uint8_t output,
 }
 
 void sendHMTLCancel(uint16_t address, uint8_t output) {
+  DEBUG3_VALUE("sendCancel: a:", address);
+  DEBUG3_VALUELN(" o:", output);
+
   hmtl_send_cancel(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
                    address, output);
 }
@@ -62,6 +72,11 @@ void sendHMTLCancel(uint16_t address, uint8_t output) {
 void sendHMTLBlink(uint16_t address, uint8_t output,
                    uint16_t onperiod, uint32_t oncolor,
                    uint16_t offperiod, uint32_t offcolor) {
+  DEBUG3_VALUE("sendBlink:", onperiod);
+  DEBUG3_VALUE(",", offperiod);
+  DEBUG3_VALUE(" a:", address);
+  DEBUG3_VALUELN(" o:", output);
+
   hmtl_send_blink(&rs485, rs485.send_buffer, SEND_BUFFER_SIZE,
                   address, output,
                   onperiod, oncolor,

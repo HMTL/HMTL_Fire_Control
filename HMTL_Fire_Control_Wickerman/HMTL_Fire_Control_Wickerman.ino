@@ -144,7 +144,8 @@ void setup() {
   DEBUG_MEMORY(DEBUG_HIGH);
 
 
-  DEBUG2_VALUE("POOF_ADDRESS=", poofer_address);
+  DEBUG2_VALUE("POOF1_ADDRESS=", poofer1_address);
+  DEBUG2_VALUE("POOF2_ADDRESS=", poofer2_address);
   DEBUG2_VALUELN("LIGHTS_ADDRESS=", lights_address);
 
   // Send the ready signal to the serial port

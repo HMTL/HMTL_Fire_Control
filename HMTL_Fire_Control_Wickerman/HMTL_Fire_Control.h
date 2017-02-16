@@ -16,7 +16,7 @@
 /*
  * Definitions for the different controllers that work with this code
  */
-#define OBJECT_TYPE_HMTL 4
+#define OBJECT_TYPE_FIRE_CONTROLLER 4
 #define OBJECT_TYPE_TOUCH_CONTROLLER 5
 
 #define BAUD 57600
@@ -58,10 +58,36 @@ void sensor_cap();
 void handle_sensors();
 
 // Capacitive sensors
-#define POOFER1_QUICK_POOF_SENSOR   3
-#define POOFER1_LONG_POOF_SENSOR    2
-#define POOFER2_QUICK_POOF_SENSOR   0
-#define POOFER2_LONG_POOF_SENSOR    1
+#ifndef OBJECT_TYPE
+#define OBJECT_TYPE OBJECT_TYPE_FIRE_CONTROLLER
+#endif
+
+#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+#define POOFER1_POOF2_QUICK_SENSOR    0
+#define POOFER1_POOF2_LONG_SENSOR     1
+#define POOFER1_MODE2_SENSOR          2
+#define POOFER1_MODE1_SENSOR          3
+#define POOFER1_POOF1_LONG_SENSOR     4
+#define POOFER1_POOF1_QUICK_SENSOR    5
+
+#define POOFER2_POOF2_QUICK_SENSOR    6
+#define POOFER2_POOF2_LONG_SENSOR     7
+#define POOFER2_MODE2_SENSOR          8
+#define POOFER2_MODE1_SENSOR          9
+#define POOFER2_POOF1_LONG_SENSOR    10
+#define POOFER2_POOF1_QUICK_SENSOR   11
+
+#define SENSOR_MENU_ENABLE_1 11
+#define SENSOR_MENU_ENABLE_2  6
+#define SENSOR_LCD_NEXT 10
+#define SENSOR_LCD_UP    9
+#define SENSOR_LCD_DOWN  8
+
+#elif OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
+#define POOFER1_POOF1_QUICK_SENSOR   3
+#define POOFER1_POOF1_LONG_SENSOR    2
+#define POOFER1_POOF2_QUICK_SENSOR   0
+#define POOFER1_POOF2_LONG_SENSOR    1
 
 #define SENSOR_EXTERNAL_1           4
 #define SENSOR_EXTERNAL_2           5
@@ -72,11 +98,12 @@ void handle_sensors();
 #define SENSOR_LCD_UP               8
 #define SENSOR_LCD_DOWN            10
 #define SENSOR_BOTTOM              11
+#endif
 
 // Rocker switches
-#define POOFER1_IGNITER_SWITCH 0
-#define POOFER1_PILOT_SWITCH   1
-#define POOFER1_ENABLE_SWITCH  2
+#define POOFER_IGNITER_SWITCH 0
+#define POOFER_PILOT_SWITCH   1
+#define POOFER_ENABLE_SWITCH  2
 #define LIGHTS_ON_SWITCH  3
 
 /***** Connectivity ***********************************************************/
@@ -97,13 +124,23 @@ extern byte *send_buffer;
 #define POOFER1_POOF1    0x2
 #define POOFER1_POOF2    0x3
 
+#ifndef POOFER2_ADDRESS
+  #define POOFER2_ADDRESS  0x41
+#endif
+#define POOFER2_IGNITER  0x0
+#define POOFER2_PILOT    0x1
+#define POOFER2_POOF1    0x2
+#define POOFER2_POOF2    0x3
+
+
 #ifndef LIGHTS_ADDRESS
   #define LIGHTS_ADDRESS  0x45
 #endif
 #define LIGHTS1 0x0
 #define LIGHTS2 0x1
 
-extern uint16_t poofer_address;
+extern uint16_t poofer1_address;
+extern uint16_t poofer2_address;
 extern uint16_t lights_address;
 
 
