@@ -86,7 +86,7 @@ void setup() {
   initialize_display();
 
   lcd.clear();
-  lcd.setCursor(0, 0); lcd.print(F("Hello Mysteria"));
+  lcd.setCursor(0, 0); lcd.print(F("Hello Frostburn"));
   lcd.setCursor(0,1);  lcd.print(F("Rock City!"));
 
 
@@ -135,6 +135,10 @@ void setup() {
   init_modes(sockets, num_sockets);
 
   touch_sensor.setThresholds(3, 1);
+  touch_sensor.setThreshold(SENSOR_EXTERNAL_1, 15, 2);
+  touch_sensor.setThreshold(SENSOR_EXTERNAL_2, 15, 2);
+  touch_sensor.setThreshold(SENSOR_EXTERNAL_3, 15, 2);
+  touch_sensor.setThreshold(SENSOR_EXTERNAL_4, 15, 2);
 
   /* Setup the sensors */
   initialize_switches();

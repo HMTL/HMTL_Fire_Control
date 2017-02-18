@@ -369,7 +369,7 @@ void handle_sensors(void) {
 
 #else
     /* On for length of touch up to maximum value */
-    #define MAXIMUM_BURST (2 * 1000)
+    #define MAXIMUM_BURST (10 * 1000)
 
     static unsigned long poofer1_poof1_on_ms = 0;
     static unsigned long poofer1_poof2_on_ms = 0;
