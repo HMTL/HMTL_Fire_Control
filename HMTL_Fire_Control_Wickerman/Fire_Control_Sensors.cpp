@@ -263,7 +263,7 @@ void handle_sensors(void) {
   } else if (switch_changed[POOFER_PILOT_SWITCH]) {
     DEBUG1_PRINTLN("PILOT OFF");
     sendOff(poofer1_address, POOFER1_PILOT);
-    sendOff(poofer2_address, POOFER1_PILOT);
+    sendOff(poofer2_address, POOFER2_PILOT);
   }
 
   /*  Poofer Enable Switch */

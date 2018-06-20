@@ -134,11 +134,15 @@ void setup() {
 
   init_modes(sockets, num_sockets);
 
-  touch_sensor.setThresholds(3, 1);
-  touch_sensor.setThreshold(SENSOR_EXTERNAL_1, 15, 2);
-  touch_sensor.setThreshold(SENSOR_EXTERNAL_2, 15, 2);
-  touch_sensor.setThreshold(SENSOR_EXTERNAL_3, 15, 2);
-  touch_sensor.setThreshold(SENSOR_EXTERNAL_4, 15, 2);
+  touch_sensor.setThresholds((byte)3, 1);
+
+#if OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
+  /* External sensors may need alternate thresholds */
+  //touch_sensor.setThreshold(SENSOR_EXTERNAL_1, 15, 2);
+  //touch_sensor.setThreshold(SENSOR_EXTERNAL_2, 15, 2);
+  //touch_sensor.setThreshold(SENSOR_EXTERNAL_3, 15, 2);
+  //touch_sensor.setThreshold(SENSOR_EXTERNAL_4, 15, 2);
+#endif
 
   /* Setup the sensors */
   initialize_switches();
