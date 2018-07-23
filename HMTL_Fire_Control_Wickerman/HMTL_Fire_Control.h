@@ -13,14 +13,29 @@
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"
 
+#define BAUD 57600
+
 /*
  * Definitions for the different controllers that work with this code
  */
 #define OBJECT_TYPE_FIRE_CONTROLLER 4
 #define OBJECT_TYPE_TOUCH_CONTROLLER 5
 
-#define BAUD 57600
+#ifndef OBJECT_TYPE
+  #define OBJECT_TYPE OBJECT_TYPE_FIRE_CONTROLLER
+#endif
 
+/*
+ * Control modes for specific poofer configurations
+ */
+#define CONTROL_SINGLE_DOUBLE 1 // Single ignitor/pilot with two accumulators.
+#define CONTROL_SINGLE_QUAD   2 // Single ignitor/pilot with four accumulators.
+#define CONTROL_DOUBLE_DOUBLE 3 // Two devices, each with single ignitor/pilot
+                                // and two accumulators.
+
+#ifndef CONTROL_MODE
+  #define CONTROL_MODE CONTROL_SINGLE_DOUBLE
+#endif
 
 // LCD display
 extern LiquidCrystal lcd;
@@ -58,9 +73,6 @@ void sensor_cap();
 void handle_sensors();
 
 // Capacitive sensors
-#ifndef OBJECT_TYPE
-#define OBJECT_TYPE OBJECT_TYPE_FIRE_CONTROLLER
-#endif
 
 #if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
 #define POOFER1_POOF2_QUICK_SENSOR    0

@@ -13,7 +13,6 @@
 #include <Debug.h>
 
 #include <Arduino.h>
-#include <NewPing.h>
 #include <Wire.h>
 #include "MPR121.h"
 
@@ -239,13 +238,17 @@ void handle_sensors(void) {
         DEBUG1_PRINTLN("IGNITE ON");
       }
       sendBurst(poofer1_address, POOFER1_IGNITER, 30 * 1000);
+#if CONTROL_MODE == CONTROL_DOUBLE_DOUBLE
       sendBurst(poofer2_address, POOFER2_IGNITER, 30 * 1000);
+#endif
       last_on = millis();
     }
   } else if (switch_changed[POOFER_IGNITER_SWITCH]) {
     DEBUG1_PRINTLN("IGNITE OFF");
     sendOff(poofer1_address, POOFER1_IGNITER);
+#if CONTROL_MODE == CONTROL_DOUBLE_DOUBLE
     sendOff(poofer2_address, POOFER2_IGNITER);
+#endif
     last_on = 0;
   }
 
@@ -257,13 +260,17 @@ void handle_sensors(void) {
         DEBUG1_PRINTLN("PILOT ON");
       }
       sendBurst(poofer1_address, POOFER1_PILOT, 30 * 1000);
+#if CONTROL_MODE == CONTROL_DOUBLE_DOUBLE
       sendBurst(poofer2_address, POOFER2_PILOT, 30 * 1000);
+#endif
       last_on = millis();
     }
   } else if (switch_changed[POOFER_PILOT_SWITCH]) {
     DEBUG1_PRINTLN("PILOT OFF");
     sendOff(poofer1_address, POOFER1_PILOT);
+#if CONTROL_MODE == CONTROL_DOUBLE_DOUBLE
     sendOff(poofer2_address, POOFER2_PILOT);
+#endif
   }
 
   /*  Poofer Enable Switch */
@@ -279,11 +286,13 @@ void handle_sensors(void) {
       sendOff(poofer1_address, POOFER1_POOF1);
       sendOff(poofer1_address, POOFER1_POOF2);
 
+#if CONTROL_MODE == CONTROL_DOUBLE_DOUBLE
       sendCancel(poofer2_address, POOFER2_POOF1);
       sendCancel(poofer2_address, POOFER2_POOF2);
 
       sendOff(poofer2_address, POOFER2_POOF1);
       sendOff(poofer2_address, POOFER2_POOF2);
+#endif
 
       setSparkle();
     }
@@ -297,6 +306,7 @@ void handle_sensors(void) {
      * Main control box sensors
      */
 
+#if (CONTROL_MODE == CONTROL_SINGLE_DOUBLE) || (CONTROL_MODE == CONTROL_SINGLE_QUAD) || (CONTROL_MODE == CONTROL_DOUBLE_DOUBLE)
     /* Brief burst */
     if (touch_sensor.changed(POOFER1_POOF1_QUICK_SENSOR) &&
         touch_sensor.touched(POOFER1_POOF1_QUICK_SENSOR)) {
@@ -307,6 +317,7 @@ void handle_sensors(void) {
         touch_sensor.touched(POOFER1_POOF2_QUICK_SENSOR)) {
       sendBurst(poofer1_address, POOFER1_POOF2, 50);
     }
+#endif
 
 #if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
     if (touch_sensor.changed(POOFER2_POOF1_QUICK_SENSOR) &&
@@ -320,7 +331,25 @@ void handle_sensors(void) {
     }
 #endif
 
-#if 0
+#if (CONTROL_MODE == CONTROL_SINGLE_QUAD)
+    /*
+     * For four cylinders as used as Wickerman 2018, where there is a single
+     * pilot and ignitor, but four separate accumulators.
+     * XXX: This currently just assumes that one module is wired as with
+     * CONTROL_SINGLE_DOUBLE and the second module has the poofers in the same
+     * controls as CONTROL_DOUBLE_DOUBLE
+     */
+
+    if (touch_sensor.changed(POOFER1_POOF1_LONG_SENSOR) &&
+        touch_sensor.touched(POOFER1_POOF1_LONG_SENSOR)) {
+      sendBurst(poofer2_address, POOFER2_POOF1, 50);
+    }
+
+    if (touch_sensor.changed(POOFER1_POOF2_LONG_SENSOR) &&
+        touch_sensor.touched(POOFER1_POOF2_LONG_SENSOR)) {
+      sendBurst(poofer2_address, POOFER2_POOF2, 50);
+    }
+#elif 0
     /* On for length of touch */
     if (touch_sensor.touched(POOFER1_POOF1_LONG_SENSOR)) {
       sendBurst(poofer1_address, POOFER1_POOF1, 250);
@@ -402,7 +431,7 @@ void handle_sensors(void) {
       poofer1_poof2_on_ms = 0;
     }
 
-#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+#if (OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER) && (CONTROL_MODE == CONTROL_DOUBLE_DOUBLE)
     if (touch_sensor.touched(POOFER2_POOF1_LONG_SENSOR)) {
       if (poofer2_poof1_on_ms == 0) {
         poofer2_poof1_on_ms = millis();

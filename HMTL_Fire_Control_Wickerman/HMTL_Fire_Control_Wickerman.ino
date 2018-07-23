@@ -86,8 +86,8 @@ void setup() {
   initialize_display();
 
   lcd.clear();
-  lcd.setCursor(0, 0); lcd.print(F("Hello Frostburn"));
-  lcd.setCursor(0,1);  lcd.print(F("Rock City!"));
+  lcd.setCursor(0, 0); lcd.print(F("Hello BLack"));
+  lcd.setCursor(0, 1); lcd.print(F("Rock City!"));
 
 
   int configOffset = -1;
