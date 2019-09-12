@@ -13,7 +13,7 @@
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"
 
-#define BAUD 57600
+#define BAUD 115200
 
 /*
  * Definitions for the different controllers that work with this code

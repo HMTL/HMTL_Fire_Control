@@ -46,6 +46,11 @@
 #include "HMTL_Fire_Control.h"
 #include "modes.h"
 
+/*
+ * A timesync object must be defined and initialized here as some libraries
+ * require it during initialization.
+ */
+TimeSync timesync;
 
 /* Auto update build number */
 #define HMTL_FIRE_CONTROL_BUILD 7 // %META INCR

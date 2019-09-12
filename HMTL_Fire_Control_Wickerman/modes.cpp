@@ -39,6 +39,7 @@ hmtl_program_t program_functions[] = {
         //{ HMTL_PROGRAM_TIMED_CHANGE, program_timed_change, program_timed_change_init },
         //{ HMTL_PROGRAM_FADE, program_fade, program_fade_init }
         { HMTL_PROGRAM_SPARKLE, program_sparkle, program_sparkle_init },
+        { HMTL_PROGRAM_CIRCULAR, program_circular, program_circular_init}
 
         // Custom programs
 };
@@ -62,7 +63,7 @@ uint8_t find_output_type(uint8_t type) {
 void setSparkle() {
   program_sparkle_fmt(rs485.send_buffer, rs485.send_data_size,
                       config.address, find_output_type(HMTL_OUTPUT_PIXELS),
-                      100, 0);
+                      100, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
 }
 
