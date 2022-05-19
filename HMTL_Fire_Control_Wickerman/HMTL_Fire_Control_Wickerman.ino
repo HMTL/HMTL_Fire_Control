@@ -32,8 +32,6 @@
 
 #include "Socket.h"
 #include "RS485Utils.h"
-//#include "XBee.h"
-//#include "XBeeSocket.h"
 
 #include "HMTLProtocol.h"
 #include "HMTLMessaging.h"
@@ -82,6 +80,12 @@ Socket *sockets[MAX_SOCKETS] = { NULL, NULL };
 void setup() {
   Serial.begin(BAUD);
   DEBUG2_PRINTLN("*** HMTL Fire Control Initializing ***");
+#if OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
+  DEBUG2_PRINTLN("* 4-sensors");
+#endif
+#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+  DEBUG2_PRINTLN("* 12-sensor");
+#endif
   DEBUG2_VALUELN("* Baud is ", BAUD);
 
   /* Initialize random see by reading from an unconnected analog pin */
