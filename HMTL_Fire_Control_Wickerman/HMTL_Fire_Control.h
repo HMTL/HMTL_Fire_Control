@@ -72,7 +72,9 @@ void sensor_cap();
 
 void handle_sensors();
 
-// Capacitive sensors
+/*
+ * Capacitive sensors configurations
+ */
 
 #if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
 #define POOFER1_POOF2_QUICK_SENSOR    0

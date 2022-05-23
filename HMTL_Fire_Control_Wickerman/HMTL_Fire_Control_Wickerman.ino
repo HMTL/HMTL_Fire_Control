@@ -82,8 +82,7 @@ void setup() {
   DEBUG2_PRINTLN("*** HMTL Fire Control Initializing ***");
 #if OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
   DEBUG2_PRINTLN("* 4-sensors");
-#endif
-#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+#elif OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
   DEBUG2_PRINTLN("* 12-sensor");
 #endif
   DEBUG2_VALUELN("* Baud is ", BAUD);

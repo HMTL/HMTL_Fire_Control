@@ -4,3 +4,4 @@ cscope.*
 *.pyc
 .pioenvs
 .sconsign.dblite
+.pio
