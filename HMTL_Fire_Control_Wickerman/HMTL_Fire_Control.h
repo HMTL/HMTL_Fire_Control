@@ -32,8 +32,8 @@
 #define CONTROL_SINGLE_QUAD   2 // Single ignitor/pilot with four accumulators.
 #define CONTROL_DOUBLE_DOUBLE 3 // Two devices, each with single ignitor/pilot
                                 // and two accumulators.
-#define CONTROL_FLIPSIDE      4 // Two devices for five accumulators, one igniter,
-                                // and one pilot, plus a HMTL controller for lights.
+#define CONTROL_SINGLE_QUINT  4 // One device w/ two controllers for five accumulators, one igniter,
+                                // and one pilot, plus optional HMTL controller for lights.
 
 #ifndef CONTROL_MODE
   #define CONTROL_MODE CONTROL_SINGLE_DOUBLE
@@ -89,7 +89,7 @@ void handle_sensors();
 
 #if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
 
-  #if CONTROL_MODE == CONTROL_FLIPSIDE
+  #if CONTROL_MODE == CONTROL_SINGLE_QUINT
     /* Normal mode switches */
     #define POOFER1_QUICK_SENSOR          0
     #define POOFER2_QUICK_SENSOR          1
@@ -172,7 +172,7 @@ extern byte *send_buffer;
 #define POOFER1_IGNITER  0x0
 #define POOFER1_PILOT    0x1
 
-#if CONTROL_MODE == CONTROL_FLIPSIDE
+#if CONTROL_MODE == CONTROL_SINGLE_QUINT
   #define POOFER1_LARGE    0x2
   #define POOFER1_UNUSED   0x3
 

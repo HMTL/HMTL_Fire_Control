@@ -311,7 +311,7 @@ void handle_poof_enable() {
       /* Cancel all poofing programs and ensure all poofers are disabled */
       DEBUG1_PRINTLN("POOFERS DISABLED");
 
-#if CONTROL_MODE == CONTROL_FLIPSIDE
+#if CONTROL_MODE == CONTROL_SINGLE_QUINT
       sendCancelAndOff(poofer1_address, POOFER1_LARGE);
       sendCancelAndOff(poofer2_address, POOFER2_POOF1);
       sendCancelAndOff(poofer2_address, POOFER2_POOF2);
@@ -471,8 +471,8 @@ void handle_settings() {
 #endif
 }
 
-#if (CONTROL_MODE == CONTROL_FLIPSIDE)
-void handle_flipside() {
+#if (CONTROL_MODE == CONTROL_SINGLE_QUINT)
+void handle_single_quint() {
   if (switch_states[PROGRAM_MODE_SWITCH]) {
     /* Capacitive touch runs programs */
 
@@ -602,8 +602,8 @@ void handle_sensors() {
     /* Poofers are enabled and the pilot is open */
 
 
-#if (CONTROL_MODE == CONTROL_FLIPSIDE)
-    handle_flipside();
+#if (CONTROL_MODE == CONTROL_SINGLE_QUINT)
+    handle_single_quint();
     return;
 #else
 
