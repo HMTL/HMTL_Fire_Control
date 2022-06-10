@@ -51,7 +51,7 @@ MessageHandler handler;
 
 /* Return the first output of the indicated type */
 uint8_t find_output_type(uint8_t type) {
-  for (byte i = 0; i < config.num_outputs; i++) {
+  for (uint8_t i = 0; i < config.num_outputs; i++) {
     if (outputs[i]->type == type) {
       return i;
     }
@@ -67,14 +67,16 @@ void setSparkle() {
   handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
 }
 
-void setBlink() {
+/* Construct a blink command and run it locally */
+void setBlink(uint32_t color) {
   hmtl_program_blink_fmt(rs485.send_buffer, rs485.send_data_size,
                          config.address, find_output_type(HMTL_OUTPUT_PIXELS),
-                         500, pixel_color(255,0,0),
+                         500, color,
                          250, 0);
   handler.process_msg((msg_hdr_t *)rs485.send_buffer, &rs485, NULL, &config);
 }
 
+/* Cancel any running local command */
 void setCancel() {
   hmtl_program_cancel_fmt(rs485.send_buffer, rs485.send_data_size,
                           config.address, find_output_type(HMTL_OUTPUT_PIXELS));
@@ -88,7 +90,7 @@ void startup_commands() {
   setSparkle();
 }
 
-void init_modes(Socket **sockets, byte num_sockets) {
+void init_modes(Socket **sockets, uint8_t num_sockets) {
   /* Setup the program manager */
   manager = ProgramManager(outputs, active_programs, objects, HMTL_MAX_OUTPUTS,
                            program_functions, NUM_PROGRAMS);
@@ -103,7 +105,7 @@ void init_modes(Socket **sockets, byte num_sockets) {
 /*
  * Check for and handle incoming messages
  */
-boolean messages_and_modes(void) {
+bool messages_and_modes(void) {
   // Check and send a serial-ready message if needed
   handler.serial_ready();
 
@@ -111,7 +113,7 @@ boolean messages_and_modes(void) {
    * Check the serial device and all sockets for messages, forwarding them and
    * processing them if they are for this module.
    */
-  boolean update = handler.check(&config);
+  bool update = handler.check(&config);
 
   /* Execute any active programs */
   if (manager.run()) {
@@ -128,7 +130,7 @@ boolean messages_and_modes(void) {
      * An output may have been updated by message or active program,
      * update all output states.
      */
-    for (byte i = 0; i < config.num_outputs; i++) {
+    for (uint8_t i = 0; i < config.num_outputs; i++) {
       hmtl_update_output(outputs[i], objects[i]);
     }
   }
@@ -140,10 +142,10 @@ boolean messages_and_modes(void) {
  * Perform an action after all programs have been executed.  This can be used
  * for things like overriding LED values and things of that nature.
  */
-boolean followup_actions() {
-  boolean changed = false;
+bool followup_actions() {
+  bool changed = false;
 
-  for (byte i = 0; i < 12; i++) {
+  for (uint8_t i = 0; i < 12; i++) {
     if (touch_sensor.touched(i)) {
       pixels.setPixelRGB(sensor_to_led(i), 255,0,0);
       if (touch_sensor.changed(i)) {

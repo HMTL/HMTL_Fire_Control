@@ -176,16 +176,11 @@ void loop() {
 
   handle_sensors();
 
-  // XXX: Do stuff here
-
-  //update_poofers();
-
   update_lcd();
-
 
   /*
    * Check for messages and handle output states
    */
-  boolean updated = messages_and_modes();
+  messages_and_modes();
 }
 

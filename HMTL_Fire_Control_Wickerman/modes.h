@@ -18,7 +18,7 @@ void init_modes(Socket **sockets, byte num_sockets);
 boolean messages_and_modes(void);
 
 void setSparkle();
-void setBlink();
+void setBlink(uint32_t color);
 void setCancel();
 
 
