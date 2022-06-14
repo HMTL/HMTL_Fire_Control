@@ -12,6 +12,7 @@
 #include "PixelUtil.h"
 //#include <LiquidTWI.h>
 #include "LiquidCrystal.h"
+#include "TimeSync.h"
 
 #define BAUD 115200
 
@@ -51,8 +52,7 @@ extern config_hdr_t config;
 extern output_hdr_t *outputs[HMTL_MAX_OUTPUTS];
 extern void *objects[HMTL_MAX_OUTPUTS];
 
-/***** Poofer bullshit ********************************************************/
-void update_poofers();
+extern TimeSync timesync;
 
 /***** Sensor info ************************************************************/
 
@@ -129,11 +129,13 @@ void handle_sensors();
     #define POOFER2_POOF1_QUICK_SENSOR   11
   #endif
 
-  #define SENSOR_MENU_ENABLE_1 11
-  #define SENSOR_MENU_ENABLE_2  6
-  #define SENSOR_LCD_NEXT 10
-  #define SENSOR_LCD_UP    9
-  #define SENSOR_LCD_DOWN  8
+  #define SENSOR_MENU_ENABLE_1           11
+  #define SENSOR_MENU_ENABLE_2            6
+  #define SENSOR_LCD_NEXT                10
+  #define SENSOR_LCD_UP                   9
+  #define SENSOR_LCD_DOWN                 8
+
+  #define SENSOR_DISPLAY_MODE             SENSOR_LCD_NEXT
 
 #elif OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
   #define POOFER1_POOF1_QUICK_SENSOR   3
@@ -150,6 +152,8 @@ void handle_sensors();
   #define SENSOR_LCD_UP                8
   #define SENSOR_LCD_DOWN             10
   #define SENSOR_BOTTOM               11
+
+  #define SENSOR_DISPLAY_MODE         SENSOR_LCD_LEFT
 #endif
 
 /***** Connectivity ***********************************************************/

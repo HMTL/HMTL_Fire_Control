@@ -339,10 +339,44 @@ void handle_poof_enable() {
  */
 void handle_settings() {
 
-#if OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
+#if OBJECT_TYPE == OBJECT_TYPE_TOUCH_CONTROLLER
+  static unsigned long settings_touch_ms = 0;
+  static bool settings_mode = false;
+
+  /* Check if entering or exiting settings mode */
+  if (!switch_states[POOFER_ENABLE_SWITCH] && // Only do settings when poofing is off
+      touch_sensor.touched(SENSOR_MENU_ENABLE_1) &&
+      touch_sensor.touched(SENSOR_MENU_ENABLE_2)) {
+
+    if (settings_touch_ms == 0) {
+      settings_touch_ms = timesync.ms();
+    }
+
+    if (timesync.ms() - settings_touch_ms > 2000) {
+      /* All settings enable buttons have been held, switch modes */
+      settings_mode = !settings_mode;
+      if (settings_mode) {
+        setBlink(pixel_color(0, 255, 0));
+      } else {
+        setSparkle();
+      }
+
+      settings_touch_ms = 0;
+    }
+  } else {
+    settings_touch_ms = 0;
+  }
+
+  if (!settings_mode) {
+    return;
+  }
+#elif OBJECT_TYPE == OBJECT_TYPE_FIRE_CONTROLLER
+  /* The wooden fire controller can alays adjust settings */
+#endif
+
   /* Change display mode */
-  if (touch_sensor.changed(SENSOR_LCD_LEFT) &&
-      touch_sensor.touched(SENSOR_LCD_LEFT)) {
+  if (touch_sensor.changed(SENSOR_DISPLAY_MODE) &&
+      touch_sensor.touched(SENSOR_DISPLAY_MODE)) {
     lcd.clear();
     display_mode = (display_mode + 1) % NUM_DISPLAY_MODES;
   }
@@ -468,7 +502,6 @@ void handle_settings() {
       }
     }
   }
-#endif
 }
 
 #if (CONTROL_MODE == CONTROL_SINGLE_QUINT)
@@ -836,7 +869,8 @@ void initialize_display() {
 
 void update_lcd() {
   switch (display_mode) {
-    case 0: {
+    case DISPLAY_CAP_SENSORS: {
+      /* Display the value of sensors and switches */
       if (data_changed) {
         lcd.setCursor(0, 0);
         lcd.print("C:");
@@ -856,6 +890,7 @@ void update_lcd() {
       }
       break;
     }
+
     case DISPLAY_ADJUST_LEFT1:
     case DISPLAY_ADJUST_LEFT2:
     {
