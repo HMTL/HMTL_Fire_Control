@@ -40,6 +40,12 @@
   #define CONTROL_MODE CONTROL_SINGLE_DOUBLE
 #endif
 
+// TODO: Remove before commit
+#define OBJECT_TYPE OBJECT_TYPE_TOUCH_CONTROLLER  // TODO: Remove before commit
+#define CONTROL_MODE CONTROL_SINGLE_QUINT         // TODO: Remove before commit
+// TODO: Remove before commit
+
+
 // LCD display
 extern LiquidCrystal lcd;
 void update_lcd();
@@ -107,8 +113,8 @@ void handle_sensors();
     #define POOFER_PROGRAM_2_SENSOR      11
 
     /* Replace the "lights on" switch with a programming mode switch */
-    #define PROGRAM_MODE_SWITCH LIGHTS_ON_SWITCH
-    #define LIGHTS_ON_SWITCH -1
+    #define PROGRAM_MODE_SWITCH           3
+    #define LIGHTS_ON_SWITCH             -1
 
     /* Programming mode sensors */
     #define POOFER_PROGRAM_A_SENSOR       0
@@ -174,7 +180,7 @@ extern byte *send_buffer;
 #endif
 
 #define POOFER1_IGNITER  0x0
-#define POOFER1_PILOT    0x1
+#define POOFER1_PILOT    0x3
 
 #if CONTROL_MODE == CONTROL_SINGLE_QUINT
   #define POOFER1_LARGE    0x2

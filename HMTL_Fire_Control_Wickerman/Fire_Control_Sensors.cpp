@@ -89,21 +89,22 @@ uint16_t pulse_bpm_1 = 120;
 uint16_t pulse_length_1 = 25;
 uint16_t pulse_delay_1;
 
-uint16_t pulse_bpm_2 = 180;
+uint16_t pulse_bpm_2 = 140;
 uint16_t pulse_length_2 = 25;
 uint16_t pulse_delay_2;
 
-uint16_t pulse_bpm_3 = 150;
+uint16_t pulse_bpm_3 = 175;
 uint16_t pulse_length_3 = 25;
 uint16_t pulse_delay_3;
 
-uint16_t pulse_bpm_4 = 90;
+uint16_t pulse_bpm_4 = 200;
 uint16_t pulse_length_4 = 25;
 uint16_t pulse_delay_4;
 
+uint16_t minimum_burst = 30;
 uint16_t short_burst = 50; /* Short burst length in milliseconds */
 uint16_t long_burst = 100; /* Long burst length in milliseconds */
-uint16_t full_burst = 250; /* Large busrt length in milliseconds */
+uint16_t full_burst = 75; /* Large busrt length in milliseconds */
 
 /* Exterior lights */
 bool lights_on = false;
@@ -235,10 +236,10 @@ void handle_lights() {
     }
   }
 #else
-  /* Default to exterior lights enabled */
-  DEBUG3_PRINTLN("LIGHTS ON");
-  lights_on = true;
-  sendLEDMode();
+//  /* Default to exterior lights enabled */
+//  DEBUG3_PRINTLN("LIGHTS ON");
+//  lights_on = true;
+//  sendLEDMode();
 #endif
 }
 
@@ -384,10 +385,9 @@ void handle_settings() {
   /*
    * Display adjustments
    */
-  if (display_mode == DISPLAY_ADJUST_LEFT1) {
+  if (display_mode == DISPLAY_ADJUST_BPM1_1) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
-        DEBUG1_PRINTLN("LEFT UP");
         pulse_bpm_1++;
         calculate_pulse();
       }
@@ -395,14 +395,13 @@ void handle_settings() {
 
     if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
       if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
-        DEBUG1_PRINTLN("LEFT DOWN");
         pulse_bpm_1--;
         calculate_pulse();
       }
     }
   }
 
-  if (display_mode == DISPLAY_ADJUST_LEFT2) {
+  if (display_mode == DISPLAY_ADJUST_BPM1_2) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         pulse_length_1++;
@@ -418,7 +417,7 @@ void handle_settings() {
     }
   }
 
-  if (display_mode == DISPLAY_ADJUST_RIGHT1) {
+  if (display_mode == DISPLAY_ADJUST_BPM2_1) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         pulse_bpm_2++;
@@ -434,7 +433,7 @@ void handle_settings() {
     }
   }
 
-  if (display_mode == DISPLAY_ADJUST_RIGHT2) {
+  if (display_mode == DISPLAY_ADJUST_BPM2_2) {
     if (touch_sensor.changed(SENSOR_LCD_UP)) {
       if (touch_sensor.touched(SENSOR_LCD_UP)) {
         pulse_length_2++;
@@ -445,6 +444,70 @@ void handle_settings() {
     if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
       if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
         pulse_length_2--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == DISPLAY_ADJUST_BPM3_1) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_bpm_3++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_bpm_3--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == DISPLAY_ADJUST_BPM3_2) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_length_3++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_length_3--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == DISPLAY_ADJUST_BPM4_1) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_bpm_4++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_bpm_4--;
+        calculate_pulse();
+      }
+    }
+  }
+
+  if (display_mode == DISPLAY_ADJUST_BPM4_2) {
+    if (touch_sensor.changed(SENSOR_LCD_UP)) {
+      if (touch_sensor.touched(SENSOR_LCD_UP)) {
+        pulse_length_4++;
+        calculate_pulse();
+      }
+    }
+
+    if (touch_sensor.changed(SENSOR_LCD_DOWN)) {
+      if (touch_sensor.touched(SENSOR_LCD_DOWN)) {
+        pulse_length_4--;
         calculate_pulse();
       }
     }
@@ -510,29 +573,57 @@ void handle_single_quint() {
     /* Capacitive touch runs programs */
 
     if (switch_changed[PROGRAM_MODE_SWITCH]) {
-      DEBUG3_PRINTLN("Programs on");
+      DEBUG2_PRINTLN("Programs on");
       setBlink(pixel_color(0, 0, 255));
     }
 
-    if (touch_sensor.changed(POOFER1_QUICK_SENSOR)) {
-      sendPulse(poofer2_address, POOFER2_POOF1,
-              /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
-    }
+    checkPulse(POOFER1_QUICK_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_1, pulse_delay_1);
+    checkPulse(POOFER2_QUICK_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_length_1, pulse_delay_1);
 
-    if (touch_sensor.changed(POOFER2_QUICK_SENSOR)) {
-      sendPulse(poofer2_address, POOFER2_POOF2,
-              /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
-    }
+    checkPulse(POOFER3_QUICK_SENSOR,poofer2_address,POOFER2_POOF3,
+               pulse_length_2, pulse_delay_2);
+    checkPulse(POOFER4_QUICK_SENSOR,poofer2_address,POOFER2_POOF4,
+               pulse_length_2, pulse_delay_2);
 
-    if (touch_sensor.changed(POOFER3_QUICK_SENSOR)) {
-      sendPulse(poofer2_address, POOFER2_POOF3,
-              /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
-    }
+    checkPulse(POOFER1_LONG_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_3, pulse_delay_3);
+    checkPulse(POOFER2_LONG_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_length_3, pulse_delay_3);
 
-    if (touch_sensor.changed(POOFER4_QUICK_SENSOR)) {
-      sendPulse(poofer2_address, POOFER2_POOF4,
-              /*on period*/ pulse_length_1, /*off period*/ pulse_delay_1);
-    }
+    checkPulse(POOFER3_LONG_SENSOR,poofer2_address,POOFER2_POOF3,
+               pulse_length_4, pulse_delay_4);
+    checkPulse(POOFER4_LONG_SENSOR,poofer2_address,POOFER2_POOF4,
+               pulse_length_4, pulse_delay_4);
+
+    checkPulse(POOFER5_QUICK_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_1, pulse_delay_1);
+    checkPulse(POOFER5_QUICK_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_delay_1, pulse_length_1);
+
+    checkPulse(POOFER5_LONG_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_4, pulse_delay_4);
+    checkPulse(POOFER5_LONG_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_delay_4, pulse_length_4);
+
+    checkPulse(POOFER_PROGRAM_1_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_1, pulse_delay_1);
+    checkPulse(POOFER_PROGRAM_1_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_length_1, pulse_delay_1);
+    checkPulse(POOFER_PROGRAM_1_SENSOR,poofer2_address,POOFER2_POOF3,
+               pulse_length_1, pulse_delay_1);
+    checkPulse(POOFER_PROGRAM_1_SENSOR,poofer2_address,POOFER2_POOF4,
+               pulse_length_1, pulse_delay_1);
+
+    checkPulse(POOFER_PROGRAM_2_SENSOR,poofer2_address,POOFER2_POOF1,
+               pulse_length_3, pulse_delay_3);
+    checkPulse(POOFER_PROGRAM_2_SENSOR,poofer2_address,POOFER2_POOF2,
+               pulse_delay_3, pulse_length_3);
+    checkPulse(POOFER_PROGRAM_2_SENSOR,poofer2_address,POOFER2_POOF3,
+               pulse_length_3, pulse_delay_3);
+    checkPulse(POOFER_PROGRAM_2_SENSOR,poofer2_address,POOFER2_POOF4,
+               pulse_delay_3, pulse_length_3);
   } else {
     /* Capacitive touch controls directly */
 
@@ -602,11 +693,11 @@ void handle_single_quint() {
     if (touch_sensor.changed(POOFER_PROGRAM_1_SENSOR) &&
         touch_sensor.touched(POOFER_PROGRAM_1_SENSOR)) {
       /* All on quick burst */
-      sendBurst(poofer2_address, POOFER2_POOF1, short_burst);
-      sendBurst(poofer2_address, POOFER2_POOF2, short_burst);
-      sendBurst(poofer2_address, POOFER2_POOF3, short_burst);
-      sendBurst(poofer2_address, POOFER2_POOF4, short_burst);
-      sendBurst(poofer1_address, POOFER1_LARGE, short_burst);
+      sendBurst(poofer2_address, POOFER2_POOF1, minimum_burst);
+      sendBurst(poofer2_address, POOFER2_POOF2, minimum_burst);
+      sendBurst(poofer2_address, POOFER2_POOF3, minimum_burst);
+      sendBurst(poofer2_address, POOFER2_POOF4, minimum_burst);
+//      sendBurst(poofer1_address, POOFER1_LARGE, minimum_burst);
     }
 
     if (touch_sensor.changed(POOFER_PROGRAM_2_SENSOR) &&
@@ -616,7 +707,7 @@ void handle_single_quint() {
       sendBurst(poofer2_address, POOFER2_POOF2, full_burst);
       sendBurst(poofer2_address, POOFER2_POOF3, full_burst);
       sendBurst(poofer2_address, POOFER2_POOF4, full_burst);
-      sendBurst(poofer1_address, POOFER1_LARGE, full_burst);
+//      sendBurst(poofer1_address, POOFER1_LARGE, full_burst);
     }
   }
 }
@@ -891,11 +982,11 @@ void update_lcd() {
       break;
     }
 
-    case DISPLAY_ADJUST_LEFT1:
-    case DISPLAY_ADJUST_LEFT2:
+    case DISPLAY_ADJUST_BPM1_1:
+    case DISPLAY_ADJUST_BPM1_2:
     {
       lcd.setCursor(0, 0);
-      lcd.print("LEFT BPM:");
+      lcd.print("BPM1:");
       lcd.print(pulse_bpm_1);
       lcd.print("    ");
 
@@ -908,11 +999,11 @@ void update_lcd() {
       break;
     }
 
-    case DISPLAY_ADJUST_RIGHT1:
-    case DISPLAY_ADJUST_RIGHT2:
+    case DISPLAY_ADJUST_BPM2_1:
+    case DISPLAY_ADJUST_BPM2_2:
     {
       lcd.setCursor(0, 0);
-      lcd.print("RIGHT BPM:");
+      lcd.print("BPM2:");
       lcd.print(pulse_bpm_2);
       lcd.print("    ");
 
@@ -921,6 +1012,41 @@ void update_lcd() {
       lcd.print(pulse_length_2);
       lcd.print(" D:");
       lcd.print(pulse_delay_2);
+      lcd.print("    ");
+      break;
+    }
+
+    case DISPLAY_ADJUST_BPM3_1:
+    case DISPLAY_ADJUST_BPM3_2:
+    {
+      lcd.setCursor(0, 0);
+      lcd.print("BPM3:");
+      lcd.print(pulse_bpm_3);
+      lcd.print("    ");
+
+      lcd.setCursor(0, 1);
+      lcd.print("Len:");
+      lcd.print(pulse_length_3);
+      lcd.print(" D:");
+      lcd.print(pulse_delay_3);
+      lcd.print("    ");
+      break;
+    }
+
+
+    case DISPLAY_ADJUST_BPM4_1:
+    case DISPLAY_ADJUST_BPM4_2:
+    {
+      lcd.setCursor(0, 0);
+      lcd.print("BPM4:");
+      lcd.print(pulse_bpm_4);
+      lcd.print("    ");
+
+      lcd.setCursor(0, 1);
+      lcd.print("Len:");
+      lcd.print(pulse_length_4);
+      lcd.print(" D:");
+      lcd.print(pulse_delay_4);
       lcd.print("    ");
       break;
     }
